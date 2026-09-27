@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { iniciarSesion } from "@/services/authService";
 
-
-
 export default function Login() {
   const router = useRouter();
   const [correo, setCorreo] = useState("");
