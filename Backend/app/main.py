@@ -5,6 +5,7 @@ from app.modules.contexto.router import router as contexto_router
 from app.modules.bodega.router import router as bodega_router
 from app.modules.login.router import router as login_router
 from app.modules.permisos.router import router as permisos_router
+from app.modules.inventario.router import router as inventario_router
 
 # Aplicación principal de FastAPI.
 app = FastAPI(
@@ -38,3 +39,4 @@ app.include_router(bodega_router)
 app.include_router(login_router)
 app.include_router(contexto_router)
 app.include_router(permisos_router)
+app.include_router(inventario_router)
