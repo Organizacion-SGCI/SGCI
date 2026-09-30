@@ -380,6 +380,7 @@ CREATE TABLE movimiento (
     id_usuario INTEGER NOT NULL,
     id_bodega_origen INTEGER NULL,
     id_bodega_destino INTEGER NULL,
+    id_proyecto INTEGER NULL,
     id_solicitud INTEGER NULL,
     observacion VARCHAR(255),
 
@@ -416,6 +417,12 @@ CREATE TABLE movimiento (
     CONSTRAINT fk_movimiento_bodega_destino
         FOREIGN KEY (id_bodega_destino)
         REFERENCES bodega(id_bodega)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+        CONSTRAINT fk_movimiento_proyecto
+        FOREIGN KEY (id_proyecto)
+        REFERENCES proyecto(id_proyecto)
         ON UPDATE CASCADE
         ON DELETE RESTRICT,
 
