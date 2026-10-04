@@ -37,7 +37,7 @@ def verificarToken(token: str):
     """Verifica y decodifica el token. Devuelve el payload o None si es inválido."""
     try:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except jwtError:
+    except JWTError:
         return None
 
 

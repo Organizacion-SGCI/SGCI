@@ -97,3 +97,26 @@ def actualizar_inventario(
         "cantidad_movimiento": cantidad,
         "cantidad_actual": nueva_cantidad
     }
+
+def listarInventario(id_bodega: int):
+    #devuelve el inventario completo de la bodega
+    from app.modules.inventario.repository import(
+        obtenerInventarioBodega,
+        obtenerBodega
+    )
+
+    bodega = obtenerBodega(id_bodega)
+    if bodega is None:
+        raise ValueError("Bodega no encontrada")
+
+    materiales = obtenerInventarioBodega(id_bodega)
+        #aca se calcula el stock bajo de cada material
+    for m in materiales:
+        m["stock_bajo"] = m["cantidad"] <= m["stock_minimo"]
+
+    return{
+        "id_bodega": bodega["id_bodega"],
+        "bodega": bodega["nombre"],
+        "materiales": materiales
+    }
+            
