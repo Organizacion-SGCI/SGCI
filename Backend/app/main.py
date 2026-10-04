@@ -7,6 +7,8 @@ from app.modules.login.router import router as login_router
 from app.modules.permisos.router import router as permisos_router
 from app.modules.inventario.router import router as inventario_router
 from app.modules.salida.router import router as salida_router
+from app.modules.movimientos.router import router as movimientos_router
+
 
 # Aplicación principal de FastAPI.
 app = FastAPI(
@@ -42,3 +44,4 @@ app.include_router(contexto_router)
 app.include_router(permisos_router)
 app.include_router(inventario_router)
 app.include_router(salida_router)
+app.include_router(movimientos_router)
