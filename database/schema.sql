@@ -380,8 +380,12 @@ CREATE TABLE movimiento (
     id_usuario INTEGER NOT NULL,
     id_bodega_origen INTEGER NULL,
     id_bodega_destino INTEGER NULL,
+    id_proyecto INTEGER NULL,
     id_solicitud INTEGER NULL,
+    id_proyecto INTEGER NULL,
+    id_proveedor INTEGER NULL, 
     observacion VARCHAR(255),
+    
 
     CONSTRAINT chk_movimiento_tipo
         CHECK (
@@ -419,11 +423,29 @@ CREATE TABLE movimiento (
         ON UPDATE CASCADE
         ON DELETE RESTRICT,
 
+        CONSTRAINT fk_movimiento_proyecto
+        FOREIGN KEY (id_proyecto)
+        REFERENCES proyecto(id_proyecto)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
     CONSTRAINT fk_movimiento_solicitud
         FOREIGN KEY (id_solicitud)
         REFERENCES solicitud(id_solicitud)
         ON UPDATE CASCADE
-        ON DELETE SET NULL
+        ON DELETE SET NULL,
+
+    CONSTRAINT fk_movimiento_proyecto
+        FOREIGN KEY (id_proyecto)
+        REFERENCES proyecto(id_proyecto)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_movimiento_proveedor               
+        FOREIGN KEY (id_proveedor)
+        REFERENCES proveedor(id_proveedor)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
 );
 
 

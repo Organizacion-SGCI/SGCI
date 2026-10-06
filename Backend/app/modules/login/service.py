@@ -40,3 +40,4 @@ def autenticar(correo: str, password: str):
             "rol": usuario["rol"]
         }
     }
+
