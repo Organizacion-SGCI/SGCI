@@ -119,29 +119,31 @@ const seleccionarProyecto = (proyecto) => {
         flex flex-col
       "
     >
-      {/* Logo */}
-      <div
-        className="
-          bg-white/85
-          backdrop-blur-md
-          min-h-[95px]
-          px-5
-          flex items-center
-          rounded-br-[30px]
-        "
-      >
-        <img
-          src="/images/logo-parque-tempisque.png"
-          alt="Parque Tempisque"
-          className="h-14 w-auto object-contain"
-        />
+   {/* Logo */}
+<div
+  onClick={() => router.push("/")}
+  className="
+    bg-white/85
+    backdrop-blur-md
+    min-h-[95px]
+    px-5
+    flex items-center
+    rounded-br-[30px]
+    cursor-pointer
+  "
+>
+  <img
+    src="/images/logo-parque-tempisque.png"
+    alt="Parque Tempisque"
+    className="h-14 w-auto object-contain"
+  />
 
-        <span className="ml-3 text-[#315c49] text-xl font-semibold">
-          Parque
-          <br />
-          Tempisque
-        </span>
-      </div>
+  <span className="ml-3 text-[#315c49] text-xl font-semibold">
+    Parque
+    <br />
+    Tempisque
+  </span>
+</div>
 
       {/* Usuario */}
       <div className="px-7 pt-10 pb-7 border-b border-white/15">
@@ -176,15 +178,39 @@ const seleccionarProyecto = (proyecto) => {
       {/* Menú */}
       <nav className="flex-1 px-5 py-7 space-y-2">
 
-        <div className="flex items-center gap-4 px-4 py-3 rounded-xl bg-white/10 text-white">
-          <span>⌂</span>
-          <span>Dashboard</span>
-        </div>
+        <div
+  onClick={() => router.push("/dashboard")}
+  className="
+    flex items-center gap-4
+    px-4 py-3
+    rounded-xl
+    text-white/75
+    hover:bg-white/10
+    hover:text-white
+    transition
+    cursor-pointer
+  "
+>
+  <span>⌂</span>
+  <span>Dashboard</span>
+</div>
 
-        <div className="flex items-center gap-4 px-4 py-3 rounded-xl text-white/75">
-          <span>▣</span>
-          <span>Materiales</span>
-        </div>
+        <div
+  onClick={() => router.push("/inventario")}
+  className="
+    flex items-center gap-4
+    px-4 py-3
+    rounded-xl
+    text-white/75
+    hover:bg-white/10
+    hover:text-white
+    transition
+    cursor-pointer
+  "
+>
+  <span>▣</span>
+  <span>Materiales</span>
+</div>
 
         <div className="flex items-center gap-4 px-4 py-3 rounded-xl text-white/75">
           <span>▤</span>
