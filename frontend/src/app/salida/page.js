@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import ModalValeSalida from "@/components/ModalValeSalida";
 
 import { obtenerInventario } from "@/services/inventarioService";
 import { obtenerProyectosActivos } from "@/services/proyectoService";
@@ -59,14 +60,12 @@ export default function Salida() {
                     return;
                 }
 
-                // Obtener inventario de la bodega seleccionada
                 const datosInventario = await obtenerInventario(
                     contextoActual.id_bodega,
                     token
                 );
                 setInventario(datosInventario.materiales || []);
 
-                // Obtener todos los proyectos activos
                 const proyectosActivos = await obtenerProyectosActivos(token);
                 setProyectos(proyectosActivos);
             } catch (err) {
@@ -86,7 +85,6 @@ export default function Salida() {
         setError("");
     };
 
-    // Material seleccionado para mostrar su stock
     const materialSeleccionado = inventario.find(
         (m) => m.id_material === Number(formulario.id_material)
     );
@@ -177,235 +175,174 @@ export default function Salida() {
                     {/* TARJETA DEL FORMULARIO */}
                     <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
 
-                        <div className="flex items-center justify-between bg-[#eaf3e6] px-8 py-5">
-                            <h2 className="text-lg font-semibold text-[#173d30]">
+                        <div className="flex items-center justify-between bg-[#145c42] px-8 py-5">
+                            <h2 className="text-lg font-semibold text-white">
                                 Datos del vale
                             </h2>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-white/70">
                                 Campos requeridos *
                             </span>
                         </div>
 
-                        {/* VISTA: VALE GENERADO */}
-                        {valeGenerado ? (
-                            <div className="p-8">
+                        <form onSubmit={enviarFormulario} className="p-8">
 
-                                <div className="mb-6 flex items-center justify-center">
-                                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-2xl font-bold text-green-700">
-                                        ✓
-                                    </div>
-                                </div>
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
-                                <h3 className="mb-2 text-center text-xl font-semibold text-[#173d30]">
-                                    Vale emitido correctamente
-                                </h3>
-
-                                <p className="mb-6 text-center text-sm text-gray-500">
-                                    Número de vale: <strong>{valeGenerado.numero_vale}</strong>
-                                </p>
-
-                                <div className="space-y-3 rounded-xl bg-[#f7f8f3] p-6 text-sm">
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">Material</span>
-                                        <span className="font-semibold text-[#173d30]">
-                                            {valeGenerado.codigo_material} - {valeGenerado.material}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">Cantidad</span>
-                                        <span className="font-semibold text-[#173d30]">
-                                            {valeGenerado.cantidad} {valeGenerado.unidad_medida}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">Proyecto</span>
-                                        <span className="font-semibold text-[#173d30]">
-                                            {valeGenerado.proyecto}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">Responsable</span>
-                                        <span className="font-semibold text-[#173d30]">
-                                            {valeGenerado.responsable}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">Fecha</span>
-                                        <span className="font-semibold text-[#173d30]">
-                                            {new Date(valeGenerado.fecha_movimiento).toLocaleString("es-CR")}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between border-t border-gray-200 pt-3">
-                                        <span className="text-gray-500">Stock actual del material</span>
-                                        <span className="font-semibold text-[#145c42]">
-                                            {valeGenerado.cantidad_actual} {valeGenerado.unidad_medida}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="mt-6 flex justify-end gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={reiniciarFormulario}
-                                        className="cursor-pointer rounded-xl bg-[#145c42] px-6 py-3 font-semibold text-white transition hover:bg-[#0f4934]"
+                                {/* MATERIAL */}
+                                <div>
+                                    <label className="mb-2 block text-sm font-semibold text-[#173d30]">
+                                        Material *
+                                    </label>
+                                    <select
+                                        name="id_material"
+                                        value={formulario.id_material}
+                                        onChange={manejarCambio}
+                                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-[#173d30] outline-none focus:border-[#65907e] focus:ring-2 focus:ring-[#65907e]/20"
                                     >
-                                        Emitir otro vale
-                                    </button>
+                                        <option value="">Seleccione un material</option>
+                                        {inventario.map((m) => (
+                                            <option key={m.id_material} value={m.id_material}>
+                                                {m.codigo} - {m.nombre}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    {materialSeleccionado && (
+                                        <p className="mt-2 text-xs text-gray-500">
+                                            Disponible: {materialSeleccionado.cantidad}{" "}
+                                            {materialSeleccionado.unidad_medida}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* CANTIDAD */}
+                                <div>
+                                    <label className="mb-2 block text-sm font-semibold text-[#173d30]">
+                                        Cantidad *
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="cantidad"
+                                        min="1"
+                                        value={formulario.cantidad}
+                                        onChange={manejarCambio}
+                                        placeholder="Ingrese la cantidad"
+                                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-[#173d30] outline-none focus:border-[#65907e] focus:ring-2 focus:ring-[#65907e]/20"
+                                    />
+                                </div>
+
+                                {/* PROYECTO */}
+                                <div>
+                                    <label className="mb-2 block text-sm font-semibold text-[#173d30]">
+                                        Proyecto *
+                                    </label>
+                                    <select
+                                        name="id_proyecto"
+                                        value={formulario.id_proyecto}
+                                        onChange={manejarCambio}
+                                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-[#173d30] outline-none focus:border-[#65907e] focus:ring-2 focus:ring-[#65907e]/20"
+                                    >
+                                        <option value="">Seleccione un proyecto</option>
+                                        {proyectos.map((p) => (
+                                            <option key={p.id_proyecto} value={p.id_proyecto}>
+                                                {p.nombre}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* FECHA (readonly) */}
+                                <div>
+                                    <label className="mb-2 block text-sm font-semibold text-[#173d30]">
+                                        Fecha
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={fechaHoy}
+                                        readOnly
+                                        disabled
+                                        className="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-500"
+                                    />
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        La fecha se registra automáticamente
+                                    </p>
+                                </div>
+
+                                {/* RESPONSABLE (readonly) */}
+                                <div className="md:col-span-2">
+                                    <label className="mb-2 block text-sm font-semibold text-[#173d30]">
+                                        Responsable
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={usuario?.nombre || ""}
+                                        readOnly
+                                        className="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600"
+                                    />
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        El responsable se toma de la sesión activa
+                                    </p>
+                                </div>
+
+                                {/* OBSERVACIONES */}
+                                <div className="md:col-span-2">
+                                    <label className="mb-2 block text-sm font-semibold text-[#173d30]">
+                                        Observaciones
+                                    </label>
+                                    <textarea
+                                        name="observacion"
+                                        value={formulario.observacion}
+                                        onChange={manejarCambio}
+                                        rows="3"
+                                        placeholder="Notas adicionales sobre esta salida de materiales"
+                                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-[#173d30] outline-none focus:border-[#65907e] focus:ring-2 focus:ring-[#65907e]/20"
+                                    />
                                 </div>
 
                             </div>
-                        ) : (
-                            <form onSubmit={enviarFormulario} className="p-8">
 
-                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-
-                                    {/* MATERIAL */}
-                                    <div>
-                                        <label className="mb-2 block text-sm font-semibold text-[#173d30]">
-                                            Material *
-                                        </label>
-                                        <select
-                                            name="id_material"
-                                            value={formulario.id_material}
-                                            onChange={manejarCambio}
-                                            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-[#173d30] outline-none focus:border-[#65907e] focus:ring-2 focus:ring-[#65907e]/20"
-                                        >
-                                            <option value="">Seleccione un material</option>
-                                            {inventario.map((m) => (
-                                                <option key={m.id_material} value={m.id_material}>
-                                                    {m.codigo} - {m.nombre}
-                                                </option>
-                                            ))}
-                                        </select>
-
-                                        {materialSeleccionado && (
-                                            <p className="mt-2 text-xs text-gray-500">
-                                                Disponible: {materialSeleccionado.cantidad}{" "}
-                                                {materialSeleccionado.unidad_medida}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {/* CANTIDAD */}
-                                    <div>
-                                        <label className="mb-2 block text-sm font-semibold text-[#173d30]">
-                                            Cantidad *
-                                        </label>
-                                        <input
-                                            type="number"
-                                            name="cantidad"
-                                            min="1"
-                                            value={formulario.cantidad}
-                                            onChange={manejarCambio}
-                                            placeholder="Ingrese la cantidad"
-                                            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-[#173d30] outline-none focus:border-[#65907e] focus:ring-2 focus:ring-[#65907e]/20"
-                                        />
-                                    </div>
-
-                                    {/* PROYECTO */}
-                                    <div>
-                                        <label className="mb-2 block text-sm font-semibold text-[#173d30]">
-                                            Proyecto *
-                                        </label>
-                                        <select
-                                            name="id_proyecto"
-                                            value={formulario.id_proyecto}
-                                            onChange={manejarCambio}
-                                            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-[#173d30] outline-none focus:border-[#65907e] focus:ring-2 focus:ring-[#65907e]/20"
-                                        >
-                                            <option value="">Seleccione un proyecto</option>
-                                            {proyectos.map((p) => (
-                                                <option key={p.id_proyecto} value={p.id_proyecto}>
-                                                    {p.nombre}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {/* FECHA (readonly) */}
-                                    <div>
-                                        <label className="mb-2 block text-sm font-semibold text-[#173d30]">
-                                            Fecha
-                                        </label>
-                                        <input
-                                            type="date"
-                                            value={fechaHoy}
-                                            readOnly
-                                            disabled
-                                            className="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-500"
-                                        />
-                                        <p className="mt-1 text-xs text-gray-400">
-                                            La fecha se registra automáticamente
-                                        </p>
-                                    </div>
-
-                                    {/* RESPONSABLE (readonly) */}
-                                    <div className="md:col-span-2">
-                                        <label className="mb-2 block text-sm font-semibold text-[#173d30]">
-                                            Responsable
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={usuario?.nombre || ""}
-                                            readOnly
-                                            className="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600"
-                                        />
-                                        <p className="mt-1 text-xs text-gray-400">
-                                            El responsable se toma de la sesión activa
-                                        </p>
-                                    </div>
-
-                                    {/* OBSERVACIONES */}
-                                    <div className="md:col-span-2">
-                                        <label className="mb-2 block text-sm font-semibold text-[#173d30]">
-                                            Observaciones
-                                        </label>
-                                        <textarea
-                                            name="observacion"
-                                            value={formulario.observacion}
-                                            onChange={manejarCambio}
-                                            rows="3"
-                                            placeholder="Notas adicionales sobre esta salida de materiales"
-                                            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-[#173d30] outline-none focus:border-[#65907e] focus:ring-2 focus:ring-[#65907e]/20"
-                                        />
-                                    </div>
-
+                            {/* ERROR */}
+                            {error && (
+                                <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                    {error}
                                 </div>
+                            )}
 
-                                {/* ERROR */}
-                                {error && (
-                                    <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                                        {error}
-                                    </div>
-                                )}
+                            {/* BOTONES */}
+                            <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-6">
+                                <button
+                                    type="button"
+                                    onClick={reiniciarFormulario}
+                                    disabled={enviando}
+                                    className="cursor-pointer rounded-xl border border-gray-300 px-6 py-3 font-semibold text-gray-600 transition hover:bg-gray-50"
+                                >
+                                    Cancelar
+                                </button>
 
-                                {/* BOTONES */}
-                                <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-6">
-                                    <button
-                                        type="button"
-                                        onClick={reiniciarFormulario}
-                                        disabled={enviando}
-                                        className="cursor-pointer rounded-xl border border-gray-300 px-6 py-3 font-semibold text-gray-600 transition hover:bg-gray-50"
-                                    >
-                                        Cancelar
-                                    </button>
+                                <button
+                                    type="submit"
+                                    disabled={enviando}
+                                    className="cursor-pointer rounded-xl bg-[#145c42] px-7 py-3 font-semibold text-white transition hover:bg-[#0f4934] disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {enviando ? "Emitiendo..." : "Emitir Vale"}
+                                </button>
+                            </div>
 
-                                    <button
-                                        type="submit"
-                                        disabled={enviando}
-                                        className="cursor-pointer rounded-xl bg-[#145c42] px-7 py-3 font-semibold text-white transition hover:bg-[#0f4934] disabled:cursor-not-allowed disabled:opacity-60"
-                                    >
-                                        {enviando ? "Emitiendo..." : "Emitir Vale"}
-                                    </button>
-                                </div>
-
-                            </form>
-                        )}
+                        </form>
 
                     </div>
 
                 </div>
             </section>
+
+            {/* MODAL DEL VALE */}
+            <ModalValeSalida
+                abierto={!!valeGenerado}
+                vale={valeGenerado}
+                onCerrar={reiniciarFormulario}
+                onEmitirOtro={reiniciarFormulario}
+            />
+
         </main>
     );
 }
