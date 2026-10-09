@@ -9,6 +9,8 @@ from app.modules.inventario.router import router as inventario_router
 from app.modules.salida.router import router as salida_router
 from app.modules.movimientos.router import router as movimientos_router
 from app.modules.ingreso.router import router as ingreso_router
+from app.modules.proyectos.router import router as proyectos_router
+
 
 
 # Aplicación principal de FastAPI.
@@ -47,3 +49,4 @@ app.include_router(inventario_router)
 app.include_router(salida_router)
 app.include_router(movimientos_router)
 app.include_router(ingreso_router)
+app.include_router(proyectos_router)
