@@ -13,4 +13,8 @@ DATABASE_URL = (
     f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
 
-engine = create_engine(DATABASE_URL)
+# Zona horaria de las conexiones (Costa Rica)
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"options": "-c timezone=America/Costa_Rica"}
+)
