@@ -22,6 +22,7 @@ PERMISOS_POR_ROL = {
         "gestionar_material",
         "generar_reporte",
         "ver_trazabilidad",
+        "emitir_vale",
     },
     "Encargado": {
         "ver_inventario",
