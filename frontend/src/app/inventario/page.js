@@ -71,9 +71,14 @@ const [usuario, setUsuario] = useState(null);
     return (
       material.codigo.toLowerCase().includes(texto) ||
       material.nombre.toLowerCase().includes(texto) ||
-      material.tipo.toLowerCase().includes(texto)
+      material.tipo?.toLowerCase().includes(texto)
     );
   });
+
+  // H-06.2: cuántos materiales tienen stock bajo (el backend ya manda stock_bajo)
+  const cantidadStockBajo = inventario.filter(
+    (material) => material.stock_bajo
+  ).length;
 
   if (cargando) {
     return (
@@ -159,6 +164,14 @@ const [usuario, setUsuario] = useState(null);
               placeholder="Buscar por código, material o tipo..."
               className="w-full max-w-md rounded-xl border border-gray-300 px-4 py-3 text-[#173d30] outline-none transition focus:border-[#65907e] focus:ring-2 focus:ring-[#65907e]/20"
             />
+
+            {/* H-06.2: resumen de resultados */}
+            <p className="mt-3 text-sm text-gray-500">
+              Mostrando {materialesFiltrados.length} de {inventario.length}{" "}
+              materiales
+              {cantidadStockBajo > 0 &&
+                ` · ${cantidadStockBajo} con stock bajo`}
+            </p>
           </div>
 
           {/* TABLA */}
@@ -180,8 +193,18 @@ const [usuario, setUsuario] = useState(null);
                     Tipo
                   </th>
 
+                  {/* H-06.2: columna nueva */}
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Bodega
+                  </th>
+
                   <th className="px-6 py-4 text-left text-sm font-semibold">
                     Cantidad
+                  </th>
+
+                  {/* H-06.2: columna nueva */}
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Stock mínimo
                   </th>
 
                   <th className="px-6 py-4 text-left text-sm font-semibold">
@@ -199,7 +222,12 @@ const [usuario, setUsuario] = useState(null);
                 {materialesFiltrados.map((material) => (
                   <tr
                     key={material.id_material}
-                    className="border-b border-gray-100 transition hover:bg-[#f7f8f3]"
+                    // H-06.2: fila en rojo suave cuando el stock es bajo
+                    className={
+                      material.stock_bajo
+                        ? "border-b border-red-100 bg-red-50 transition hover:bg-red-100"
+                        : "border-b border-gray-100 transition hover:bg-[#f7f8f3]"
+                    }
                   >
                     <td className="px-6 py-4 font-semibold text-[#145c42]">
                       {material.codigo}
@@ -213,8 +241,25 @@ const [usuario, setUsuario] = useState(null);
                       {material.tipo}
                     </td>
 
-                    <td className="px-6 py-4 font-semibold text-gray-800">
+                    {/* H-06.2: celda nueva */}
+                    <td className="px-6 py-4 text-gray-600">
+                      {material.bodega}
+                    </td>
+
+                    {/* H-06.2: la cantidad se pinta en rojo si hay stock bajo */}
+                    <td
+                      className={
+                        material.stock_bajo
+                          ? "px-6 py-4 font-semibold text-red-600"
+                          : "px-6 py-4 font-semibold text-gray-800"
+                      }
+                    >
                       {material.cantidad}
+                    </td>
+
+                    {/* H-06.2: celda nueva */}
+                    <td className="px-6 py-4 text-gray-600">
+                      {material.stock_minimo}
                     </td>
 
                     <td className="px-6 py-4 text-gray-600">
@@ -264,6 +309,8 @@ const [usuario, setUsuario] = useState(null);
           ? {
               ...material,
               cantidad: resultado.cantidad_actual,
+              // H-06.2: se recalcula el indicador con la cantidad nueva
+              stock_bajo: resultado.cantidad_actual <= material.stock_minimo,
             }
           : material
       )
