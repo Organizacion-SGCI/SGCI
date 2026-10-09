@@ -85,3 +85,50 @@ def actualizar_cantidad_inventario(
         # Devolvemos la nueva cantidad para que las capas superiores
         # puedan utilizarla.
         return nueva_cantidad
+
+# aca es de H-06 con la consulta al inventario
+
+def obtenerInventarioBodega(id_bodega: int):
+    #se devuelven todos los materiales de la bodega
+    with engine.connect() as connection:
+        resultado = connection.execute( # se establece la conexion y se traen estos datos
+            text("""
+                SELECT
+                    i .cantidad,
+                    i.stock_minimo,
+                    m.id_material,
+                    m.codigo,
+                    m.nombre,
+                    m.tipo,
+                    m.unidad_medida,
+                    b.id_bodega,
+                    b.nombre AS bodega
+                FROM inventario i
+                JOIN material m ON m.id_material = i.id_material
+                JOIN bodega b ON b.id_bodega = i.id_bodega
+                WHERE i.id_bodega = :id_bodega
+                ORDER BY m.nombre 
+            """),
+            {"id_bodega": id_bodega}    
+        )
+        return[dict(fila._mapping) for fila in resultado]
+
+def obtenerBodega(id_bodega: int):
+    # se devuelven los datos de una bodega
+    with engine.connect() as connection:
+        #se obtienen datos de la bodega seleccionada
+        resultado = connection.execute(
+            text("""
+                SELECT
+                    id_bodega,
+                    nombre,
+                    codigo,
+                    ubicacion,
+                    tipo
+                FROM bodega
+                WHERE id_bodega = :id_bodega
+            """),
+            {"id_bodega": id_bodega} 
+        )
+        fila = resultado.fetchone()
+        return dict(fila._mapping) if fila else None    

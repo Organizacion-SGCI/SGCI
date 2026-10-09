@@ -2,9 +2,11 @@
 # Aquí se definen los endpoints que pueden ser llamados
 # desde el frontend u otros módulos del backend.
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
 from app.modules.inventario.service import actualizar_inventario
+from app.core.security import getCurrentUser
+from app.modules.inventario.service import actualizar_inventario, listarInventario
 
 
 # Router encargado de las operaciones relacionadas
@@ -51,3 +53,11 @@ def actualizar(
             status_code=400,
             detail=str(error)
         )
+
+@router.get("/{id_bodega}")
+def obtenerInventario(id_bodega: int, user = Depends(getCurrentUser)):
+    # devuelve inventario de una bodega
+    try:
+        return listarInventario(id_bodega)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
