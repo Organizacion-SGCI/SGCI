@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { registrarEntrada } from "@/services/entradaService";
+import { useRouter } from "next/navigation";
 
 export default function ModalRegistrarEntrada({
   abierto,
   onCerrar,
   onEntradaRegistrada,
 }) {
+  const router = useRouter();
   const materiales = [
     { id: 1, codigo: "MAT-001", nombre: "Cemento" },
     { id: 2, codigo: "MAT-002", nombre: "Arena" },
@@ -228,13 +230,31 @@ await onEntradaRegistrada(resultado);
 
           </div>
 
-          <button
-            type="button"
-            onClick={onCerrar}
-            className="mt-6 w-full cursor-pointer rounded-xl bg-[#145c42] px-6 py-3 font-semibold text-white transition hover:bg-[#0f4934]"
-          >
-            Aceptar
-          </button>
+                    <div className="mt-6 flex gap-3">
+
+            <button
+              type="button"
+              onClick={onCerrar}
+              className="w-full cursor-pointer rounded-xl border border-[#145c42] px-6 py-3 font-semibold text-[#145c42] transition hover:bg-[#dcefd7]"
+            >
+              Aceptar
+            </button>
+
+            {/* H-08.2: lleva al comprobante del ingreso recién registrado */}
+            <button
+              type="button"
+              onClick={() => {
+                onCerrar();
+                router.push(
+                  `/inventario/comprobante/${entradaRegistrada.id_movimiento}`
+                );
+              }}
+              className="w-full cursor-pointer rounded-xl bg-[#145c42] px-6 py-3 font-semibold text-white transition hover:bg-[#0f4934]"
+            >
+              Ver comprobante
+            </button>
+
+          </div>
 
         </div>
 
