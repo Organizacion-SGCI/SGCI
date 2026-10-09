@@ -9,11 +9,10 @@ export default function Sidebar({ usuario, activo = "" }) {
   const opcionClase = (nombre) =>
     `mx-3 mb-2 px-5 py-3 rounded-xl flex items-center gap-3
      text-sm transition cursor-pointer
-     ${
-       activo === nombre
-         ? "bg-[#209b70] text-white font-semibold"
-         : "text-white/85 hover:bg-white/10"
-     }`;
+     ${activo === nombre
+      ? "bg-[#209b70] text-white font-semibold"
+      : "text-white/85 hover:bg-white/10"
+    }`;
 
   return (
     <aside
@@ -28,18 +27,18 @@ export default function Sidebar({ usuario, activo = "" }) {
         flex flex-col
       "
     >
-     {/* USUARIO */}
-<div
-  onClick={() => router.push("/contexto")}
-  className="
+      {/* USUARIO */}
+      <div
+        onClick={() => router.push("/contexto")}
+        className="
     px-6 pt-8 pb-7
     border-b border-white/10
     cursor-pointer
     transition
     hover:bg-white/10
   "
->
-  <div className="flex items-center gap-3">
+      >
+        <div className="flex items-center gap-3">
           <div
             className="
               w-11 h-11
@@ -83,6 +82,16 @@ export default function Sidebar({ usuario, activo = "" }) {
           >
             <span>▦</span>
             Materiales
+          </div>
+        </Guard>
+
+        <Guard permiso="emitir_vale">
+          <div
+            onClick={() => router.push("/salida")}
+            className={opcionClase("salida")}
+          >
+            <span>▤</span>
+            Emitir Vale
           </div>
         </Guard>
 

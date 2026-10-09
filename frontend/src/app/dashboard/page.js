@@ -60,21 +60,21 @@ export default function Dashboard() {
           px-6
         "
       >
-     {/* LOGO - REGRESAR AL INICIO */}
-<div
-  onClick={() => router.push("/")}
-  className="flex items-center gap-3 cursor-pointer"
->
-  <img
-    src="/images/logo-parque-tempisque.png"
-    alt="Parque Tempisque"
-    className="h-12 w-auto object-contain"
-  />
+        {/* LOGO - REGRESAR AL INICIO */}
+        <div
+          onClick={() => router.push("/")}
+          className="flex items-center gap-3 cursor-pointer"
+        >
+          <img
+            src="/images/logo-parque-tempisque.png"
+            alt="Parque Tempisque"
+            className="h-12 w-auto object-contain"
+          />
 
-  <span className="hidden sm:block text-[#145c42] text-xl font-semibold">
-    Parque Tempisque
-  </span>
-</div>
+          <span className="hidden sm:block text-[#145c42] text-xl font-semibold">
+            Parque Tempisque
+          </span>
+        </div>
 
         {/* TÍTULO */}
         <h1
@@ -89,11 +89,11 @@ export default function Dashboard() {
         </h1>
 
         {/* USUARIO ARRIBA */}
-        
+
         {/* USUARIO ARRIBA */}
-<div
-  onClick={() => router.push("/contexto")}
-  className="
+        <div
+          onClick={() => router.push("/contexto")}
+          className="
     text-right hidden md:block
     cursor-pointer
     rounded-lg
@@ -101,17 +101,17 @@ export default function Dashboard() {
     transition
     hover:bg-[#c9dfc4]
   "
-  title="Cambiar contexto"
->
-  <p className="text-[#124c38] font-semibold">
-    {usuario.nombre}
-  </p>
+          title="Cambiar contexto"
+        >
+          <p className="text-[#124c38] font-semibold">
+            {usuario.nombre}
+          </p>
 
-  <p className="text-sm text-[#39715c]">
-    {usuario.rol}
-  </p>
-</div>
-</header>
+          <p className="text-sm text-[#39715c]">
+            {usuario.rol}
+          </p>
+        </div>
+      </header>
 
       {/* ====================================================== */}
       {/* BARRA LATERAL */}
@@ -133,18 +133,18 @@ export default function Dashboard() {
         "
       >
 
-       {/* USUARIO */}
-<div
-  onClick={() => router.push("/contexto")}
-  className="
+        {/* USUARIO */}
+        <div
+          onClick={() => router.push("/contexto")}
+          className="
     px-6 pt-8 pb-7
     border-b border-white/10
     cursor-pointer
     transition
     hover:bg-white/10
   "
-  title="Cambiar contexto"
->
+          title="Cambiar contexto"
+        >
 
           <div className="flex items-center gap-3">
 
@@ -202,15 +202,15 @@ export default function Dashboard() {
           </div>
 
           {/* MATERIALES - visible con permiso ver_inventario */}
-<Guard permiso="ver_inventario">
-  <div
-    onClick={() => router.push("/inventario")}
-    className="mx-3 px-5 py-3 rounded-xl flex items-center gap-3 text-sm text-white/85 hover:bg-white/10 transition cursor-pointer"
-  >
-    <span>▦</span>
-    Materiales
-  </div>
-</Guard>
+          <Guard permiso="ver_inventario">
+            <div
+              onClick={() => router.push("/inventario")}
+              className="mx-3 px-5 py-3 rounded-xl flex items-center gap-3 text-sm text-white/85 hover:bg-white/10 transition cursor-pointer"
+            >
+              <span>▦</span>
+              Materiales
+            </div>
+          </Guard>
 
           {/* TRAZABILIDAD - visible con permiso ver_trazabilidad */}
           <Guard permiso="ver_trazabilidad">
@@ -497,7 +497,7 @@ export default function Dashboard() {
                 </p>
 
                 <p className="text-gray-800 font-semibold mt-2">
-                  {contexto.ubicacion} 
+                  {contexto.ubicacion}
                 </p>
               </div>
 
@@ -528,13 +528,6 @@ export default function Dashboard() {
                   </button>
                 </Guard>
 
-                {/* EMITIR VALE - solo Jefa de Construcción */}
-                <Guard permiso="emitir_vale">
-                  <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-xl transition cursor-pointer">
-                    Emitir vale
-                  </button>
-                </Guard>
-
                 {/* GESTIONAR USUARIOS - solo Administrador */}
                 <Guard permiso="gestionar_usuario">
                   <button className="bg-gray-700 hover:bg-gray-800 text-white font-semibold px-6 py-3 rounded-xl transition cursor-pointer">
@@ -545,7 +538,7 @@ export default function Dashboard() {
               </div>
 
             </div>
-            
+
           </div>
 
         </div>
