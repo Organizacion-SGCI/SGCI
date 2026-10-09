@@ -60,18 +60,21 @@ export default function Dashboard() {
           px-6
         "
       >
-        {/* LOGO */}
-        <div className="flex items-center gap-3">
-          <img
-            src="/images/logo-parque-tempisque.png"
-            alt="Parque Tempisque"
-            className="h-12 w-auto object-contain"
-          />
+     {/* LOGO - REGRESAR AL INICIO */}
+<div
+  onClick={() => router.push("/")}
+  className="flex items-center gap-3 cursor-pointer"
+>
+  <img
+    src="/images/logo-parque-tempisque.png"
+    alt="Parque Tempisque"
+    className="h-12 w-auto object-contain"
+  />
 
-          <span className="hidden sm:block text-[#145c42] text-xl font-semibold">
-            Parque Tempisque
-          </span>
-        </div>
+  <span className="hidden sm:block text-[#145c42] text-xl font-semibold">
+    Parque Tempisque
+  </span>
+</div>
 
         {/* TÍTULO */}
         <h1
@@ -86,16 +89,29 @@ export default function Dashboard() {
         </h1>
 
         {/* USUARIO ARRIBA */}
-        <div className="text-right hidden md:block">
-          <p className="text-[#124c38] font-semibold">
-            {usuario.nombre}
-          </p>
+        
+        {/* USUARIO ARRIBA */}
+<div
+  onClick={() => router.push("/contexto")}
+  className="
+    text-right hidden md:block
+    cursor-pointer
+    rounded-lg
+    px-3 py-2
+    transition
+    hover:bg-[#c9dfc4]
+  "
+  title="Cambiar contexto"
+>
+  <p className="text-[#124c38] font-semibold">
+    {usuario.nombre}
+  </p>
 
-          <p className="text-sm text-[#39715c]">
-            {usuario.rol}
-          </p>
-        </div>
-      </header>
+  <p className="text-sm text-[#39715c]">
+    {usuario.rol}
+  </p>
+</div>
+</header>
 
       {/* ====================================================== */}
       {/* BARRA LATERAL */}
@@ -117,8 +133,18 @@ export default function Dashboard() {
         "
       >
 
-        {/* USUARIO */}
-        <div className="px-6 pt-8 pb-7 border-b border-white/10">
+       {/* USUARIO */}
+<div
+  onClick={() => router.push("/contexto")}
+  className="
+    px-6 pt-8 pb-7
+    border-b border-white/10
+    cursor-pointer
+    transition
+    hover:bg-white/10
+  "
+  title="Cambiar contexto"
+>
 
           <div className="flex items-center gap-3">
 
@@ -176,12 +202,15 @@ export default function Dashboard() {
           </div>
 
           {/* MATERIALES - visible con permiso ver_inventario */}
-          <Guard permiso="ver_inventario">
-            <div className="mx-3 px-5 py-3 rounded-xl flex items-center gap-3 text-sm text-white/85 hover:bg-white/10 transition cursor-pointer">
-              <span>▦</span>
-              Materiales
-            </div>
-          </Guard>
+<Guard permiso="ver_inventario">
+  <div
+    onClick={() => router.push("/inventario")}
+    className="mx-3 px-5 py-3 rounded-xl flex items-center gap-3 text-sm text-white/85 hover:bg-white/10 transition cursor-pointer"
+  >
+    <span>▦</span>
+    Materiales
+  </div>
+</Guard>
 
           {/* TRAZABILIDAD - visible con permiso ver_trazabilidad */}
           <Guard permiso="ver_trazabilidad">
