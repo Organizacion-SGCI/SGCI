@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { obtenerContextos } from "@/services/contextoService";
+import ModalCerrarSesion from "@/components/ModalCerrarSesion";
 
 export default function Contexto() {
   const [usuario, setUsuario] = useState(null);
@@ -14,6 +15,7 @@ export default function Contexto() {
 
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
 
   const router = useRouter();
 
@@ -241,23 +243,29 @@ const seleccionarProyecto = (proyecto) => {
 
       </nav>
 
-      {/* Cerrar sesión - visual por ahora */}
-      <div className="p-5">
-        <button
-          type="button"
-          className="
-            w-full
-            border border-white/50
-            text-white
-            py-3
-            rounded-xl
-            hover:bg-white/10
-            transition
-          "
-        >
-          ↪ Cerrar sesión
-        </button>
-      </div>
+      {/* CERRAR SESIÓN */}
+        <div className="p-5">
+          <button
+            onClick={() => setModalCerrarAbierto(true)}
+            className="
+              w-full
+              flex items-center justify-center gap-2
+              bg-red-600
+              text-white
+              font-semibold
+              rounded-xl
+              py-3
+              text-sm
+              hover:bg-red-700
+              transition-all
+              cursor-pointer
+              shadow-lg
+            "
+          >
+            <span className="text-lg"></span>
+            Cerrar sesión
+          </button>
+        </div>
     </aside>
 
     {/* ====================================================== */}
@@ -522,6 +530,11 @@ const seleccionarProyecto = (proyecto) => {
 
       </div>
     </section>
+    {/* MODAL DE CERRAR SESIÓN */}
+          <ModalCerrarSesion
+            abierto={modalCerrarAbierto}
+            onCerrar={() => setModalCerrarAbierto(false)}
+    />
   </main>
 );
 }

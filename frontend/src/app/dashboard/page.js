@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Guard from "@/components/Guard";
-
+import ModalCerrarSesion from "@/components/ModalCerrarSesion";
 export default function Dashboard() {
   const [usuario, setUsuario] = useState(null);
   const [contexto, setContexto] = useState(null);
-
+  const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -257,22 +257,28 @@ export default function Dashboard() {
         </nav>
 
 
-        {/* CERRAR SESIÓN - SOLO VISUAL POR AHORA */}
+      {/* CERRAR SESIÓN */}
         <div className="p-5">
-          <div
+          <button
+            onClick={() => setModalCerrarAbierto(true)}
             className="
               w-full
-              border border-white/40
+              flex items-center justify-center gap-2
+              bg-red-600
+              text-white
+              font-semibold
               rounded-xl
               py-3
-              text-center
               text-sm
-              hover:bg-white/10
-              transition
+              hover:bg-red-700
+              transition-all
+              cursor-pointer
+              shadow-lg
             "
           >
+            <span className="text-lg"></span>
             Cerrar sesión
-          </div>
+          </button>
         </div>
 
       </aside>
@@ -544,6 +550,11 @@ export default function Dashboard() {
         </div>
 
       </section>
+      {/* MODAL DE CERRAR SESIÓN */}
+      <ModalCerrarSesion
+        abierto={modalCerrarAbierto}
+        onCerrar={() => setModalCerrarAbierto(false)}
+      />
 
     </main>
   );
