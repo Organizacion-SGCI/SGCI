@@ -3,8 +3,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 
-from app.modules.solicitudes.service import registrar_solicitud
+from app.modules.solicitudes.service import registrar_solicitud, obtener_solicitudes
 from app.core.security import getCurrentUser
+from app.core.dependencies import require_rol
 
 
 router = APIRouter(
@@ -45,6 +46,23 @@ def crear_solicitud_endpoint(
             id_bodega_destino=datos.id_bodega_destino,
             prioridad=datos.prioridad,
             materiales=materiales_dict
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/")
+def listar_solicitudes_endpoint(
+    estado: str | None = None,
+    usuario_actual: dict = Depends(
+        require_rol(["Jefe de Bodega", "Encargado"])
+    )
+):
+    #H-05.1: lista las solicitudes segun el rol
+    try:
+        return obtener_solicitudes(
+            id_usuario=usuario_actual["id_usuario"],
+            rol=usuario_actual["rol"],
+            estado=estado
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

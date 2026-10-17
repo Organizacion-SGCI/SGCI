@@ -5,8 +5,13 @@ from app.modules.solicitudes.repository import (
     crear_solicitud,
     crear_detalle_solicitud,
     existe_material,
-    existe_bodega
+    existe_bodega,
+    listar_solicitudes_del_solicitante,
+    listar_solicitudes_de_mis_bodegas,
+    listar_materiales_de_solicitudes
 )
+
+
 
 
 def registrar_solicitud(
@@ -73,3 +78,67 @@ def registrar_solicitud(
         "prioridad": prioridad,
         "materiales": materiales
     }
+
+
+# H-05.1 - Consulta de solicitudes
+
+ESTADOS_VALIDOS = [
+    "PENDIENTE",
+    "APROBADA",
+    "RECHAZADA",
+    "EN_TRANSITO",
+    "COMPLETADA",
+    "CANCELADA"
+]
+
+
+def obtener_solicitudes(id_usuario, rol, estado=None):
+    """
+    Devuelve las solicitudes que el usuario puede ver segun su rol
+    - Encargado: solo las solicitudes que el creo
+    - Jefe de Bodega: las solicitudes dirigidas a sus bodegas
+    """
+    # Valida el estado 
+    if estado:
+        estado = estado.upper()
+        if estado not in ESTADOS_VALIDOS:
+            raise ValueError("El estado indicado no es válido.")
+
+    # Filtra segun el rol
+    if rol == "Encargado":
+        solicitudes = listar_solicitudes_del_solicitante(id_usuario, estado)
+    elif rol == "Jefe de Bodega":
+        solicitudes = listar_solicitudes_de_mis_bodegas(id_usuario, estado)
+    else:
+        raise ValueError("El rol del usuario no puede consultar solicitudes.")
+
+    # Trae los materiales de todas las solicitudes encontradas
+    materiales = listar_materiales_de_solicitudes(
+        [s["id_solicitud"] for s in solicitudes]
+    )
+
+    # Arma la respuesta con el formato acordado en el contrato JSON
+    resultado = []
+
+    for s in solicitudes:
+        resultado.append({
+            "id_solicitud": s["id_solicitud"],
+            "fecha_solicitud": s["fecha_solicitud"].isoformat(),
+            "estado": s["estado"],
+            "prioridad": s["prioridad"],
+            "bodega_origen": s["bodega_origen"],
+            "bodega_destino": s["bodega_destino"],
+            "solicitante": s["solicitante"],
+            "materiales": [
+                {
+                    "id_material": m["id_material"],
+                    "nombre": m["nombre"],
+                    "tipo": m["tipo"],
+                    "cantidad": m["cantidad"]
+                }
+                for m in materiales
+                if m["id_solicitud"] == s["id_solicitud"]
+            ]
+        })
+
+    return resultado

@@ -1,6 +1,7 @@
 # Capa de acceso a datos - solicitudes.
 
-from sqlalchemy import text
+#from sqlalchemy import text
+from sqlalchemy import text, bindparam
 from app.core.database import engine
 
 
@@ -65,3 +66,78 @@ def existe_bodega(id_bodega):
             {"id_bodega": id_bodega}
         )
         return resultado.fetchone() is not None
+
+
+# H-05.1 - Consulta de solicitudes (GET /solicitudes)
+
+def _consultar_solicitudes(condicion, parametros, estado=None):
+    # Consulta las cabeceras de las solicitudes
+    sql = """
+        SELECT
+            s.id_solicitud,
+            s.fecha_solicitud,
+            s.estado,
+            s.prioridad,
+            bo.nombre AS bodega_origen,
+            bd.nombre AS bodega_destino,
+            u.nombre AS solicitante
+        FROM solicitud s
+        JOIN bodega bo ON bo.id_bodega = s.id_bodega_origen
+        JOIN bodega bd ON bd.id_bodega = s.id_bodega_destino
+        JOIN usuario u ON u.id_usuario = s.id_usuario
+        WHERE """ + condicion
+
+    if estado:
+        sql += " AND s.estado = :estado"
+        parametros["estado"] = estado
+
+    sql += " ORDER BY s.fecha_solicitud DESC"
+
+    with engine.connect() as connection:
+        resultado = connection.execute(text(sql), parametros)
+        return [dict(fila._mapping) for fila in resultado]
+
+
+def listar_solicitudes_del_solicitante(id_usuario, estado=None):
+    # Encargado: solo las solicitudes que el mismo creo
+    return _consultar_solicitudes(
+        "s.id_usuario = :id_usuario",
+        {"id_usuario": id_usuario},
+        estado
+    )
+
+
+def listar_solicitudes_de_mis_bodegas(id_usuario, estado=None):
+    # Jefe de Bodega: las solicitudes dirigidas a las bodegas que le pertenecen
+    return _consultar_solicitudes(
+        """s.id_bodega_destino IN (
+            SELECT id_bodega FROM usuario_bodega WHERE id_usuario = :id_usuario
+        )""",
+        {"id_usuario": id_usuario},
+        estado
+    )
+
+
+def listar_materiales_de_solicitudes(ids_solicitud):
+    # Devuelve los materiales de varias solicitudes en una sola consulta
+    if not ids_solicitud:
+        return []
+
+    with engine.connect() as connection:
+        resultado = connection.execute(
+            text("""
+                SELECT
+                    d.id_solicitud,
+                    d.id_material,
+                    m.nombre,
+                    m.tipo,
+                    d.cantidad_solicitada AS cantidad
+                FROM detalle_solicitud d
+                JOIN material m ON m.id_material = d.id_material
+                WHERE d.id_solicitud IN :ids
+                ORDER BY d.id_detalle_solicitud
+            """).bindparams(bindparam("ids", expanding=True)),
+            {"ids": list(ids_solicitud)}
+        )
+        return [dict(fila._mapping) for fila in resultado]
+    
