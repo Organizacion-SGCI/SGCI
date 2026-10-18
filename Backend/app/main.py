@@ -11,7 +11,7 @@ from app.modules.movimientos.router import router as movimientos_router
 from app.modules.ingreso.router import router as ingreso_router
 from app.modules.proyectos.router import router as proyectos_router
 from app.modules.solicitudes.router import router as solicitudes_router
-
+from app.modules.notificaciones.router import router as notificaciones_router
 
 
 # Aplicación principal de FastAPI.
@@ -52,3 +52,4 @@ app.include_router(movimientos_router)
 app.include_router(ingreso_router)
 app.include_router(proyectos_router)
 app.include_router(solicitudes_router)
+app.include_router(notificaciones_router)
