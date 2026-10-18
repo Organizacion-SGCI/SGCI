@@ -166,3 +166,34 @@ def actualizar_estado_solicitud(id_solicitud, nuevo_estado):
             {"nuevo_estado": nuevo_estado, "id_solicitud": id_solicitud}
         )   
     
+
+# H-04.1 - Agregar materiales al listado de una solicitud
+def obtener_ids_materiales_de_solicitud(id_solicitud):
+    # Devuelve los ids de los materiales que ya estan en el listado
+    with engine.connect() as connection:
+        resultado = connection.execute(
+            text("""
+                SELECT id_material
+                FROM detalle_solicitud
+                WHERE id_solicitud = :id_solicitud
+            """),
+            {"id_solicitud": id_solicitud}
+        )
+        return [fila.id_material for fila in resultado]
+
+
+def agregar_detalles_solicitud(id_solicitud, materiales):
+    # Inserta todos los materiales en una sola transaccion, o se guardan todos o no se guarda ninguno
+    with engine.begin() as connection:
+        for item in materiales:
+            connection.execute(
+                text("""
+                    INSERT INTO detalle_solicitud (id_solicitud, id_material, cantidad_solicitada)
+                    VALUES (:id_solicitud, :id_material, :cantidad)
+                """),
+                {
+                    "id_solicitud": id_solicitud,
+                    "id_material": item["id_material"],
+                    "cantidad": item["cantidad"]
+                }
+            )

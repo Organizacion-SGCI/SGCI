@@ -3,11 +3,16 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 
-from app.modules.solicitudes.service import registrar_solicitud, obtener_solicitudes
 from app.core.security import getCurrentUser
 from app.core.dependencies import require_rol
-from app.modules.solicitudes.service import registrar_solicitud, obtener_solicitudes, cambiar_estado_solicitud
-
+from app.modules.solicitudes.service import (
+    registrar_solicitud,
+    obtener_solicitudes,
+    cambiar_estado_solicitud,
+    agregar_materiales_a_solicitud,
+    SolicitudNoEncontrada,
+    SinPermisoSobreSolicitud
+)
 
 router = APIRouter(
     prefix="/solicitudes",
@@ -89,5 +94,35 @@ def rechazar_solicitud_endpoint(
 ):
     try:
         return cambiar_estado_solicitud(id_solicitud, "RECHAZADA", datos.motivo)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+
+class agregar_materiales_request(BaseModel):
+    materiales: list[material_solicitud]
+
+@router.post("/{id_solicitud}/materiales")
+def agregar_materiales_endpoint(
+    id_solicitud: int,
+    datos: agregar_materiales_request,
+    usuario_actual: dict = Depends(require_rol(["Encargado"]))
+):
+    #H-04.1: agrega materiales al listado de una solicitud pendiente
+    try:
+        materiales_dict = [
+            {"id_material": m.id_material, "cantidad": m.cantidad}
+            for m in datos.materiales
+        ]
+
+        return agregar_materiales_a_solicitud(
+            id_usuario=usuario_actual["id_usuario"],
+            id_solicitud=id_solicitud,
+            materiales=materiales_dict
+        )
+    except SolicitudNoEncontrada as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except SinPermisoSobreSolicitud as e:
+        raise HTTPException(status_code=403, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

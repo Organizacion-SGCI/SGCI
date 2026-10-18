@@ -8,7 +8,9 @@ from app.modules.solicitudes.repository import (
     existe_bodega,
     listar_solicitudes_del_solicitante,
     listar_solicitudes_de_mis_bodegas,
-    listar_materiales_de_solicitudes
+    listar_materiales_de_solicitudes,
+    obtener_ids_materiales_de_solicitud,
+    agregar_detalles_solicitud
 )
 from app.modules.notificaciones.service import registrar_notificacion
 from app.modules.solicitudes.repository import (
@@ -186,4 +188,83 @@ def cambiar_estado_solicitud(id_solicitud, nuevo_estado, motivo=None):
         "id_solicitud": id_solicitud, 
         "estado": nuevo_estado, 
         "mensaje": "Estado actualizado correctamente"
+    }
+
+
+# H-04.1 - Agregar materiales al listado de una solicitud
+class SolicitudNoEncontrada(Exception):
+    pass  #La solicitud indicada no existe
+
+
+class SinPermisoSobreSolicitud(Exception):
+    pass #El usuario no es el dueño de la solicitud
+
+
+def agregar_materiales_a_solicitud(id_usuario, id_solicitud, materiales):
+    """
+    Agrega materiales al listado de una solicitud que sigue PENDIENTE.
+    Solo el Encargado que creo la solicitud puede modificar su listado.
+    """
+
+    # La solicitud debe existir
+    solicitud = obtener_solicitud_por_id(id_solicitud)
+
+    if solicitud is None:
+        raise SolicitudNoEncontrada("La solicitud no existe.")
+
+    # Solo su dueño puede modificarla
+    if solicitud["id_usuario"] != id_usuario:
+        raise SinPermisoSobreSolicitud(
+            "Solo quien creó la solicitud puede modificar su listado."
+        )
+
+    # Solo se modifica mientras esta pendiente 
+    if solicitud["estado"] != "PENDIENTE":
+        raise ValueError(
+            "Solo se pueden agregar materiales a solicitudes pendientes."
+        )
+
+    # RN-08: Al menos un material
+    if not materiales:
+        raise ValueError("Debe indicar al menos un material.")
+
+    # RN-11: cantidades validas, materiales existentes y sin repetir
+    ya_en_listado = obtener_ids_materiales_de_solicitud(id_solicitud)
+    ids_nuevos = []
+
+    for item in materiales:
+        id_material = item["id_material"]
+
+        if item["cantidad"] <= 0:
+            raise ValueError(
+                f"La cantidad del material {id_material} debe ser mayor que cero."
+            )
+        if not existe_material(id_material):
+            raise ValueError(f"El material {id_material} no existe.")
+        if id_material in ya_en_listado or id_material in ids_nuevos:
+            raise ValueError(
+                f"El material {id_material} ya está en el listado."
+            )
+
+        ids_nuevos.append(id_material)
+
+    # Guardar todos los materiales en una sola transaccion
+    agregar_detalles_solicitud(id_solicitud, materiales)
+
+    # Devolver el listado completo actualizado
+    listado = listar_materiales_de_solicitudes([id_solicitud])
+
+    return {
+        "id_solicitud": id_solicitud,
+        "estado": solicitud["estado"],
+        "total_items": len(listado),
+        "materiales": [
+            {
+                "id_material": m["id_material"],
+                "nombre": m["nombre"],
+                "tipo": m["tipo"],
+                "cantidad": m["cantidad"]
+            }
+            for m in listado
+        ]
     }
