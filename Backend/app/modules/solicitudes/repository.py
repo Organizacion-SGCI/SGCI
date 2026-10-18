@@ -140,4 +140,29 @@ def listar_materiales_de_solicitudes(ids_solicitud):
             {"ids": list(ids_solicitud)}
         )
         return [dict(fila._mapping) for fila in resultado]
+
+def obtener_solicitud_por_id(id_solicitud):
+    # Trae la solicitud con el id_usuario del solicitante
+    with engine.connect() as connection:
+        resultado = connection.execute(
+            text("""
+                SELECT id_solicitud, estado, id_usuario 
+                FROM solicitud 
+                WHERE id_solicitud = :id_solicitud
+            """),
+            {"id_solicitud": id_solicitud}
+        )
+        fila = resultado.fetchone()
+        return dict(fila._mapping) if fila else None
+
+def actualizar_estado_solicitud(id_solicitud, nuevo_estado):
+    with engine.begin() as connection:
+        connection.execute(
+            text("""
+                UPDATE solicitud 
+                SET estado = :nuevo_estado 
+                WHERE id_solicitud = :id_solicitud
+            """),
+            {"nuevo_estado": nuevo_estado, "id_solicitud": id_solicitud}
+        )   
     
