@@ -10,6 +10,11 @@ from app.modules.solicitudes.repository import (
     listar_solicitudes_de_mis_bodegas,
     listar_materiales_de_solicitudes
 )
+from app.modules.notificaciones.service import registrar_notificacion
+from app.modules.solicitudes.repository import (
+    obtener_solicitud_por_id, 
+    actualizar_estado_solicitud
+)
 
 
 
@@ -39,11 +44,11 @@ def registrar_solicitud(
     if not existe_bodega(id_bodega_destino):
         raise ValueError("La bodega de destino no existe.")
 
-    # RN-08: Al menos un material
+    #Al menos un material
     if not materiales or len(materiales) == 0:
         raise ValueError("La solicitud debe incluir al menos un material.")
 
-    # RN-11: Cantidades válidas y materiales existentes
+    #Cantidades válidas y materiales existentes
     for item in materiales:
         if item["cantidad"] <= 0:
             raise ValueError(
@@ -142,3 +147,43 @@ def obtener_solicitudes(id_usuario, rol, estado=None):
         })
 
     return resultado
+
+def cambiar_estado_solicitud(id_solicitud, nuevo_estado, motivo=None):
+    # Validar que exista
+    solicitud = obtener_solicitud_por_id(id_solicitud)
+    if not solicitud:
+        raise ValueError("La solicitud no existe.")
+
+    #Decisión única (solo si está PENDIENTE)
+    if solicitud["estado"] != "PENDIENTE":
+        raise ValueError(f"La solicitud ya fue procesada (Estado actual: {solicitud['estado']}).")
+
+    #Actualizar estado
+    actualizar_estado_solicitud(id_solicitud, nuevo_estado)
+
+    # 4. RN-25: Notificar al solicitante
+    id_solicitante = solicitud["id_usuario"]
+    if nuevo_estado == "APROBADA":
+        registrar_notificacion(
+            titulo="Solicitud Aprobada",
+            mensaje=f"Tu solicitud #{id_solicitud} ha sido aprobada.",
+            tipo="CAMBIO_ESTADO",
+            id_usuario=id_solicitante
+        )
+    elif nuevo_estado == "RECHAZADA":
+        msj = f"Tu solicitud #{id_solicitud} ha sido rechazada."
+        if motivo:
+            msj += f" Motivo: {motivo}"
+        
+        registrar_notificacion(
+            titulo="Solicitud Rechazada",
+            mensaje=msj,
+            tipo="CAMBIO_ESTADO",
+            id_usuario=id_solicitante
+        )
+
+    return {
+        "id_solicitud": id_solicitud, 
+        "estado": nuevo_estado, 
+        "mensaje": "Estado actualizado correctamente"
+    }

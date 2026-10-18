@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from app.modules.solicitudes.service import registrar_solicitud, obtener_solicitudes
 from app.core.security import getCurrentUser
 from app.core.dependencies import require_rol
+from app.modules.solicitudes.service import registrar_solicitud, obtener_solicitudes, cambiar_estado_solicitud
 
 
 router = APIRouter(
@@ -24,6 +25,9 @@ class solicitud_request(BaseModel):
     id_bodega_destino: int = Field(..., gt=0)
     prioridad: str = "MEDIA"
     materiales: list[material_solicitud]
+
+class RechazoRequest(BaseModel):
+    motivo: str | None = None
 
 
 @router.post("/")
@@ -64,5 +68,26 @@ def listar_solicitudes_endpoint(
             rol=usuario_actual["rol"],
             estado=estado
         )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.put("/{id_solicitud}/aprobar")
+def aprobar_solicitud_endpoint(
+    id_solicitud: int,
+    usuario_actual: dict = Depends(require_rol(["Jefe de Bodega"]))
+):
+    try:
+        return cambiar_estado_solicitud(id_solicitud, "APROBADA")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.put("/{id_solicitud}/rechazar")
+def rechazar_solicitud_endpoint(
+    id_solicitud: int,
+    datos: RechazoRequest,
+    usuario_actual: dict = Depends(require_rol(["Jefe de Bodega"]))
+):
+    try:
+        return cambiar_estado_solicitud(id_solicitud, "RECHAZADA", datos.motivo)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
