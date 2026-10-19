@@ -123,6 +123,17 @@ export default function Sidebar({ usuario, activo = "" }) {
           </div>
         </Guard>
 
+        {/* gestion de solicitudes*/}
+        <Guard permiso="aprobar_solicitud">
+          <div
+            onClick={() => router.push("/solicitudes")}
+            className={opcionClase("solicitudes")}
+          >
+            <span>▧</span>
+            Solicitudes
+          </div>
+        </Guard>
+        
         <div className="mx-6 my-5 border-t border-white/15" />
 
         <Guard permiso="gestionar_usuario">
@@ -142,7 +153,7 @@ export default function Sidebar({ usuario, activo = "" }) {
             border border-white/40
             rounded-xl
             py-3
-            text-center
+            text-center                                            
             text-sm
             hover:bg-white/10
             transition
