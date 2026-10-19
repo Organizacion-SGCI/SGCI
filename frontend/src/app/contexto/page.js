@@ -15,8 +15,8 @@ export default function Contexto() {
 
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
-  const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
-
+const [avisoNavegacion, setAvisoNavegacion] = useState("");
+const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -44,6 +44,31 @@ export default function Contexto() {
 
     cargarDatos();
   }, []);
+
+  // Evita abrir pantallas que requieren un contexto sin haberlo seleccionado.
+const navegarConContexto = (ruta) => {
+  const guardado = sessionStorage.getItem("contexto");
+  let contextoActivo = null;
+
+  try {
+    contextoActivo = guardado ? JSON.parse(guardado) : null;
+  } catch {
+    contextoActivo = null;
+  }
+
+  if (
+    !contextoActivo ||
+    (!contextoActivo.id_bodega && !contextoActivo.id_proyecto)
+  ) {
+    setAvisoNavegacion(
+      "Primero seleccione una bodega o proyecto para acceder a Dashboard o Materiales."
+    );
+    return;
+  }
+
+  setAvisoNavegacion("");
+  router.push(ruta);
+};
 
 const seleccionarBodega = (bodega) => {
   const contextoSeleccionado = {
@@ -181,7 +206,7 @@ const seleccionarProyecto = (proyecto) => {
       <nav className="flex-1 px-5 py-7 space-y-2">
 
         <div
-  onClick={() => router.push("/dashboard")}
+  onClick={() => navegarConContexto("/dashboard")}
   className="
     flex items-center gap-4
     px-4 py-3
@@ -198,7 +223,7 @@ const seleccionarProyecto = (proyecto) => {
 </div>
 
         <div
-  onClick={() => router.push("/inventario")}
+  onClick={() => navegarConContexto("/inventario")}
   className="
     flex items-center gap-4
     px-4 py-3
@@ -523,9 +548,9 @@ const seleccionarProyecto = (proyecto) => {
             i
           </div>
 
-          <p>
-            Seleccione un contexto para continuar.
-          </p>
+          <p role="status" aria-live="polite">
+  {avisoNavegacion || "Seleccione un contexto para continuar."}
+</p>
         </div>
 
       </div>
