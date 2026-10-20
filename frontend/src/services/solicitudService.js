@@ -71,3 +71,62 @@ export async function rechazarSolicitud(idSolicitud, motivo, token) {
 
   return datos;
 }
+
+// H-03.2: registrar una solicitud de materiales.
+export async function crearSolicitud(solicitud, token) {
+  const respuesta = await fetch(`${API_URL}/solicitudes/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(solicitud),
+  });
+
+  const datos = await respuesta.json().catch(() => null);
+
+  if (!respuesta.ok) {
+    const detalle = datos?.detail;
+
+    const mensaje = Array.isArray(detalle)
+      ? detalle.map((error) => error.msg).join(". ")
+      : typeof detalle === "string"
+        ? detalle
+        : "No se pudo registrar la solicitud.";
+
+    throw new Error(mensaje);
+  }
+
+  if (!datos?.id_solicitud) {
+    throw new Error(
+      "El servidor no devolvió la confirmación de la solicitud. Revise el listado antes de intentar enviarla nuevamente."
+    );
+  }
+
+  return datos;
+}
+
+// H-03.2: obtener las bodegas para identificar la central.
+export async function obtenerBodegas(token) {
+  const respuesta = await fetch(`${API_URL}/bodegas/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const datos = await respuesta.json().catch(() => null);
+
+  if (!respuesta.ok) {
+    throw new Error(
+      typeof datos?.detail === "string"
+        ? datos.detail
+        : "No se pudieron cargar las bodegas."
+    );
+  }
+
+  if (!Array.isArray(datos)) {
+    throw new Error("El servidor devolvió un listado de bodegas inválido.");
+  }
+
+  return datos;
+}

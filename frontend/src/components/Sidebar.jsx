@@ -117,11 +117,14 @@ export default function Sidebar({ usuario, activo = "" }) {
         </Guard>
 
         <Guard permiso="solicitar_material">
-          <div className={opcionClase("pedidos")}>
-            <span>▥</span>
-            Pedidos
-          </div>
-        </Guard>
+  <div
+    onClick={() => router.push("/solicitudes")}
+    className={opcionClase("solicitudes")}
+  >
+    <span>▥</span>
+    Pedidos
+  </div>
+</Guard>
 
         {/* gestion de solicitudes*/}
         <Guard permiso="aprobar_solicitud">
