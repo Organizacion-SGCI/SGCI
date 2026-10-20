@@ -1,9 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import CampanaNotificaciones from "@/components/CampanaNotificaciones";
 
 export default function Header({ usuario, titulo }) {
   const router = useRouter();
+  const [token, setToken] = useState("");
+
+  // Recuperamos el token para la campana
+  useEffect(() => {
+    setToken(sessionStorage.getItem("token") || "");
+  }, []);
 
   return (
     <header
@@ -46,15 +54,18 @@ export default function Header({ usuario, titulo }) {
         {titulo}
       </h1>
 
-      {/* USUARIO */}
-      <div className="text-right hidden md:block">
-        <p className="text-[#124c38] font-semibold">
-          {usuario?.nombre}
-        </p>
+      {/* USUARIO Y CAMPANA */}
+       <div className="flex items-center gap-5">
+        <div className="text-right hidden md:block">
+          <p className="text-[#124c38] font-semibold">
+            {usuario?.nombre}
+          </p>
+          <p className="text-sm text-[#39715c]">
+            {usuario?.rol}
+          </p>
+        </div>
 
-        <p className="text-sm text-[#39715c]">
-          {usuario?.rol}
-        </p>
+        <CampanaNotificaciones token={token} />
       </div>
     </header>
   );

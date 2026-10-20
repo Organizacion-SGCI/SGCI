@@ -4,15 +4,18 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Guard from "@/components/Guard";
 import ModalCerrarSesion from "@/components/ModalCerrarSesion";
+import CampanaNotificaciones from "@/components/CampanaNotificaciones";
 export default function Dashboard() {
   const [usuario, setUsuario] = useState(null);
   const [contexto, setContexto] = useState(null);
   const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
   const router = useRouter();
+  const [token, setToken] = useState("");
 
   useEffect(() => {
     const usuarioGuardado = sessionStorage.getItem("usuario");
     const contextoGuardado = sessionStorage.getItem("contexto");
+    setToken(sessionStorage.getItem("token") || "");
 
     if (!usuarioGuardado) {
       router.push("/");
@@ -91,26 +94,19 @@ export default function Dashboard() {
         {/* USUARIO ARRIBA */}
 
         {/* USUARIO ARRIBA */}
-        <div
-          onClick={() => router.push("/contexto")}
-          className="
-    text-right hidden md:block
-    cursor-pointer
-    rounded-lg
-    px-3 py-2
-    transition
-    hover:bg-[#c9dfc4]
-  "
-          title="Cambiar contexto"
-        >
-          <p className="text-[#124c38] font-semibold">
-            {usuario.nombre}
-          </p>
+        <div className="flex items-center gap-4">
+          <div
+            onClick={() => router.push("/contexto")}
+            className="text-right hidden md:block cursor-pointer rounded-lg px-3 py-2 transition hover:bg-[#c9dfc4]"
+            title="Cambiar contexto"
+          >
+            <p className="text-[#124c38] font-semibold">{usuario.nombre}</p>
+            <p className="text-sm text-[#39715c]">{usuario.rol}</p>
+          </div>
 
-          <p className="text-sm text-[#39715c]">
-            {usuario.rol}
-          </p>
+          <CampanaNotificaciones token={token} />
         </div>
+
       </header>
 
       {/* ====================================================== */}
