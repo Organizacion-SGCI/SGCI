@@ -23,6 +23,7 @@ export default function ModalSolicitudMaterial({
   const [idMaterial, setIdMaterial] = useState("");
   const [cantidad, setCantidad] = useState("");
   const [prioridad, setPrioridad] = useState("MEDIA");
+  const [listadoMateriales, setListadoMateriales] = useState([]);
 
   const [cargando, setCargando] = useState(true);
   const [enviando, setEnviando] = useState(false);
@@ -39,6 +40,7 @@ export default function ModalSolicitudMaterial({
 
     setIdMaterial("");
     setCantidad("");
+    setListadoMateriales([]);
     setPrioridad("MEDIA");
     setResultado(null);
     setError("");
@@ -134,6 +136,66 @@ export default function ModalSolicitudMaterial({
     onCerrar();
   };
 
+
+  const agregarMaterial = () => {
+  if (enviandoRef.current) return;
+
+  setError("");
+
+  const material = materiales.find(
+    (item) => Number(item.id_material) === Number(idMaterial)
+  );
+  const cantidadNumerica = Number(cantidad);
+
+  if (!material) {
+    setError("Seleccione un material.");
+    return;
+  }
+
+  if (
+    !Number.isSafeInteger(cantidadNumerica) ||
+    cantidadNumerica <= 0
+  ) {
+    setError("La cantidad debe ser un número entero mayor que cero.");
+    return;
+  }
+
+  if (
+    listadoMateriales.some(
+      (item) => item.id_material === Number(material.id_material)
+    )
+  ) {
+    setError(
+      "Este material ya está en el listado. Puede quitarlo y agregarlo con otra cantidad."
+    );
+    return;
+  }
+
+  setListadoMateriales((actual) => [
+    ...actual,
+    {
+      id_material: Number(material.id_material),
+      codigo: material.codigo,
+      nombre: material.nombre,
+      tipo: material.tipo,
+      cantidad: cantidadNumerica,
+    },
+  ]);
+
+  setIdMaterial("");
+  setCantidad("");
+};
+
+const quitarMaterial = (id) => {
+  if (enviandoRef.current) return;
+
+  setListadoMateriales((actual) =>
+    actual.filter((material) => material.id_material !== id)
+  );
+  setError("");
+};
+
+
   const enviarSolicitud = async (event) => {
     event.preventDefault();
 
@@ -141,23 +203,40 @@ export default function ModalSolicitudMaterial({
 
     setError("");
 
-    const material = materiales.find(
-      (item) => Number(item.id_material) === Number(idMaterial)
-    );
-    const cantidadNumerica = Number(cantidad);
+    if (listadoMateriales.length === 0) {
+  setError("Agregue al menos un material al listado.");
+  return;
+}
 
-    if (!material) {
-      setError("Seleccione un material.");
-      return;
-    }
+// Evita enviar mientras queda un material sin agregar.
+if (idMaterial !== "" || cantidad !== "") {
+  setError(
+    "Hay un material sin agregar. Pulse Agregar material o limpie los campos antes de enviar."
+  );
+  return;
+}
 
-    if (
-      !Number.isSafeInteger(cantidadNumerica) ||
-      cantidadNumerica <= 0
-    ) {
-      setError("La cantidad debe ser un número entero mayor que cero.");
-      return;
-    }
+const ids = listadoMateriales.map((item) => item.id_material);
+
+if (new Set(ids).size !== ids.length) {
+  setError("El listado contiene materiales repetidos.");
+  return;
+}
+
+if (
+  listadoMateriales.some(
+    (item) =>
+      !materiales.some(
+        (material) =>
+          Number(material.id_material) === item.id_material
+      ) ||
+      !Number.isSafeInteger(item.cantidad) ||
+      item.cantidad <= 0
+  )
+) {
+  setError("Revise los materiales y las cantidades del listado.");
+  return;
+}
 
     if (!["BAJA", "MEDIA", "ALTA", "URGENTE"].includes(prioridad)) {
       setError("Seleccione una prioridad válida.");
@@ -193,12 +272,10 @@ export default function ModalSolicitudMaterial({
           id_bodega_origen: Number(bodegaSolicitante.id_bodega),
           id_bodega_destino: Number(central.id_bodega),
           prioridad,
-          materiales: [
-            {
-              id_material: Number(material.id_material),
-              cantidad: cantidadNumerica,
-            },
-          ],
+          materiales: listadoMateriales.map((material) => ({
+  id_material: material.id_material,
+  cantidad: material.cantidad,
+})),
         },
         token
       );
@@ -339,7 +416,6 @@ export default function ModalSolicitudMaterial({
                     id="solicitud-material"
                     value={idMaterial}
                     onChange={(event) => setIdMaterial(event.target.value)}
-                    required
                     className={claseCampo}
                   >
                     <option value="">Seleccione un material</option>
@@ -367,7 +443,6 @@ export default function ModalSolicitudMaterial({
                     type="number"
                     min="1"
                     step="1"
-                    required
                     value={cantidad}
                     onChange={(event) => setCantidad(event.target.value)}
                     className={claseCampo}
@@ -461,6 +536,111 @@ export default function ModalSolicitudMaterial({
                   </select>
                 </div>
               </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3">
+  <p className="text-sm text-white/75">
+    Agregue cada material al listado antes de enviar.
+  </p>
+
+  <button
+    type="button"
+    onClick={agregarMaterial}
+    disabled={!central || materiales.length === 0}
+    className="
+      rounded-xl bg-[#b5d58f] px-5 py-3
+      text-sm font-semibold text-[#173d30]
+      hover:bg-[#c5dfa9]
+      disabled:cursor-not-allowed disabled:opacity-50
+    "
+  >
+    + Agregar material
+  </button>
+</div>
+
+<section aria-labelledby="titulo-listado-materiales">
+  <div className="mb-3 flex items-center justify-between gap-3">
+    <h3
+      id="titulo-listado-materiales"
+      className="font-semibold"
+    >
+      Materiales de la solicitud
+    </h3>
+
+    <span className="text-sm text-white/75" role="status">
+      {listadoMateriales.length} material(es)
+    </span>
+  </div>
+
+  {listadoMateriales.length === 0 ? (
+    <p className="rounded-xl border border-white/20 p-5 text-sm text-white/70">
+      Todavía no ha agregado materiales.
+    </p>
+  ) : (
+    <div className="overflow-x-auto rounded-xl border border-white/20">
+      <table className="w-full text-left text-sm">
+        <caption className="sr-only">
+          Materiales que se enviarán en esta solicitud
+        </caption>
+
+        <thead className="bg-black/15">
+          <tr>
+            <th scope="col" className="px-4 py-3">
+              Material
+            </th>
+            <th scope="col" className="px-4 py-3">
+              Tipo
+            </th>
+            <th scope="col" className="px-4 py-3 text-right">
+              Cantidad
+            </th>
+            <th scope="col" className="px-4 py-3 text-right">
+              Acción
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {listadoMateriales.map((material) => (
+            <tr
+              key={material.id_material}
+              className="border-t border-white/15"
+            >
+              <td className="px-4 py-3">
+                <p className="font-medium">{material.nombre}</p>
+                <p className="mt-1 text-xs text-white/65">
+                  {material.codigo}
+                </p>
+              </td>
+
+              <td className="px-4 py-3">
+                {material.tipo}
+              </td>
+
+              <td className="px-4 py-3 text-right">
+                {material.cantidad}
+              </td>
+
+              <td className="px-4 py-3 text-right">
+                <button
+                  type="button"
+                  onClick={() => quitarMaterial(material.id_material)}
+                  aria-label={`Quitar ${material.nombre} del listado`}
+                  className="
+                    rounded-lg border border-red-200/40
+                    px-3 py-2 text-red-100
+                    hover:bg-red-200/10
+                  "
+                >
+                  Quitar
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</section>
             </fieldset>
 
             {!materiales.length && central && (
