@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import ModalSolicitudMaterial from "@/components/ModalSolicitudMaterial";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Guard from "@/components/Guard";
@@ -64,6 +65,8 @@ export default function Solicitudes() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
+
+  const [modalSolicitudAbierto, setModalSolicitudAbierto] = useState(false);
 
   useEffect(() => {
     const cargarSolicitudes = async () => {
@@ -167,6 +170,18 @@ export default function Solicitudes() {
             <p className="mt-2 text-gray-500">
               Revise, apruebe o rechace las solicitudes de las bodegas
             </p>
+            <Guard permiso="solicitar_material">
+  <button
+    type="button"
+    onClick={() => setModalSolicitudAbierto(true)}
+    className="
+      mt-5 rounded-xl bg-[#145c42] px-6 py-3
+      font-semibold text-white transition hover:bg-[#0f4934]
+    "
+  >
+    + Solicitar material
+  </button>
+</Guard>
           </div>
 
           {/* MENSAJE DE ÉXITO */}
@@ -452,6 +467,16 @@ export default function Solicitudes() {
         </div>
       </section>
 
+<ModalSolicitudMaterial
+  abierto={modalSolicitudAbierto}
+  onCerrar={() => setModalSolicitudAbierto(false)}
+  onSolicitudRegistrada={(resultado) => {
+    setMensaje(
+      `La solicitud #${resultado.id_solicitud} fue registrada correctamente.`
+    );
+    setRecarga((valor) => valor + 1);
+  }}
+/>
       {/* VENTANA DE APROBAR / RECHAZAR */}
       {decision && (
         <ModalDecisionSolicitud
