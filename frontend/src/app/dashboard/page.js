@@ -238,11 +238,36 @@ export default function Dashboard() {
 
           {/* PEDIDOS - solo visible para Encargado */}
           <Guard permiso="solicitar_material">
-            <div className="mx-3 px-5 py-3 rounded-xl flex items-center gap-3 text-sm text-white/85 hover:bg-white/10 transition cursor-pointer">
-              <span>▥</span>
-              Pedidos
-            </div>
-          </Guard>
+  <button
+    type="button"
+    onClick={() => router.push("/solicitudes")}
+    className="
+      mx-3 px-5 py-3 rounded-xl
+      flex items-center gap-3 text-sm
+      text-white/85 hover:bg-white/10
+      transition cursor-pointer
+    "
+  >
+    <span aria-hidden="true">▥</span>
+    Mis solicitudes
+  </button>
+</Guard>
+
+<Guard permiso="aprobar_solicitud">
+  <button
+    type="button"
+    onClick={() => router.push("/solicitudes")}
+    className="
+      mx-3 px-5 py-3 rounded-xl
+      flex items-center gap-3 text-sm
+      text-white/85 hover:bg-white/10
+      transition cursor-pointer
+    "
+  >
+    <span aria-hidden="true">▧</span>
+    Revisar solicitudes
+  </button>
+</Guard>
 
           <div className="mx-6 my-5 border-t border-white/15" />
 
@@ -308,12 +333,133 @@ export default function Dashboard() {
               Bienvenido, {usuario.nombre}
             </h2>
 
-            <p className="text-gray-500 mt-2">
-              Este es el resumen de tu sesión actual.
-            </p>
+            <p className="text-gray-600 mt-2">
+  Seleccioná una acción para comenzar a trabajar.
+</p>
+
+<div
+  className="
+    mt-5 flex flex-wrap items-center justify-between gap-4
+    rounded-xl border border-[#c9dfc4] bg-[#eaf4e5] p-4
+  "
+>
+  <div>
+    <p className="text-xs font-semibold uppercase text-[#39715c]">
+      Contexto activo
+    </p>
+
+    <p className="mt-1 font-semibold text-[#173d30]">
+      {contexto.nombre}
+    </p>
+
+    <p className="mt-1 text-sm text-[#39715c]">
+      {[contexto.tipo_contexto, contexto.ubicacion]
+        .filter(Boolean)
+        .join(" · ")}
+    </p>
+  </div>
+
+  <button
+    type="button"
+    onClick={() => router.push("/contexto")}
+    className="
+      rounded-xl border border-[#145c42]
+      px-4 py-2 text-sm font-semibold text-[#145c42]
+      hover:bg-[#dcefd7] transition
+    "
+  >
+    Cambiar contexto
+  </button>
+</div>
           </div>
 
           {/* ================================================== */}
+          <section
+  aria-labelledby="titulo-acciones-dashboard"
+  className="mb-8"
+>
+  <h3
+    id="titulo-acciones-dashboard"
+    className="text-xl font-semibold text-[#173d30]"
+  >
+    ¿Qué necesitás hacer?
+  </h3>
+
+  <p className="mt-2 mb-5 text-sm text-gray-600">
+    Accedé a las tareas disponibles según tus permisos.
+  </p>
+
+  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <Guard permiso="ver_inventario">
+      <button
+        type="button"
+        onClick={() => router.push("/inventario")}
+        className="
+          rounded-2xl border border-[#c9dfc4]
+          bg-white p-6 text-left shadow-sm
+          hover:bg-[#eaf4e5] transition
+          focus-visible:outline-2
+          focus-visible:outline-offset-4
+          focus-visible:outline-[#145c42]
+        "
+      >
+        <span className="block text-lg font-semibold text-[#145c42]">
+          Consultar inventario →
+        </span>
+
+        <span className="mt-2 block text-sm text-gray-600">
+          Revisá los materiales y las existencias del contexto activo.
+        </span>
+      </button>
+    </Guard>
+
+    <Guard permiso="solicitar_material">
+      <button
+        type="button"
+        onClick={() => router.push("/solicitudes")}
+        className="
+          rounded-2xl border border-[#145c42]
+          bg-[#145c42] p-6 text-left shadow-sm
+          hover:bg-[#10583f] transition
+          focus-visible:outline-2
+          focus-visible:outline-offset-4
+          focus-visible:outline-[#145c42]
+        "
+      >
+        <span className="block text-lg font-semibold text-white">
+          Solicitudes de materiales →
+        </span>
+
+        <span className="mt-2 block text-sm text-white/85">
+          Consultá tus pedidos o iniciá una solicitud a la bodega central.
+        </span>
+      </button>
+    </Guard>
+
+    <Guard permiso="aprobar_solicitud">
+      <button
+        type="button"
+        onClick={() => router.push("/solicitudes")}
+        className="
+          rounded-2xl border border-[#145c42]
+          bg-[#145c42] p-6 text-left shadow-sm
+          hover:bg-[#10583f] transition
+          focus-visible:outline-2
+          focus-visible:outline-offset-4
+          focus-visible:outline-[#145c42]
+        "
+      >
+        <span className="block text-lg font-semibold text-white">
+          Revisar solicitudes →
+        </span>
+
+        <span className="mt-2 block text-sm text-white/85">
+          Consultá los materiales solicitados y decidí su aprobación o rechazo.
+        </span>
+      </button>
+    </Guard>
+  </div>
+</section>
           {/* TARJETAS SUPERIORES */}
           {/* ================================================== */}
 

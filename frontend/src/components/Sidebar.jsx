@@ -2,9 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import Guard from "@/components/Guard";
+import { useState } from "react";
+import ModalCerrarSesion from "@/components/ModalCerrarSesion";
 
 export default function Sidebar({ usuario, activo = "" }) {
   const router = useRouter();
+  const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
 
   const opcionClase = (nombre) =>
     `mx-3 mb-2 px-5 py-3 rounded-xl flex items-center gap-3
@@ -65,7 +68,7 @@ export default function Sidebar({ usuario, activo = "" }) {
       </div>
 
       {/* NAVEGACIÓN */}
-      <nav className="flex-1 py-6">
+      <nav className="min-h-0 flex-1 overflow-y-auto py-6">
 
         <div
           onClick={() => router.push("/dashboard")}
@@ -148,23 +151,31 @@ export default function Sidebar({ usuario, activo = "" }) {
 
       </nav>
 
-      {/* CERRAR SESIÓN - visual por ahora */}
-      <div className="p-5">
-        <div
+            {/* CERRAR SESIÓN */}
+      <div className="shrink-0 p-5">
+        <button
+          type="button"
+          onClick={() => setModalCerrarAbierto(true)}
           className="
             w-full
-            border border-white/40
-            rounded-xl
-            py-3
-            text-center                                            
-            text-sm
-            hover:bg-white/10
-            transition
+            flex items-center justify-center gap-2
+            rounded-xl bg-red-600 py-3
+            text-sm font-semibold text-white
+            shadow-lg transition
+            hover:bg-red-700 cursor-pointer
+            focus-visible:outline-2
+            focus-visible:outline-offset-4
+            focus-visible:outline-white
           "
         >
           Cerrar sesión
-        </div>
+        </button>
       </div>
+
+      <ModalCerrarSesion
+        abierto={modalCerrarAbierto}
+        onCerrar={() => setModalCerrarAbierto(false)}
+      />
     </aside>
   );
 }
