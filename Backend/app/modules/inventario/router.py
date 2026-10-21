@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Depends
 
 from app.modules.inventario.service import actualizar_inventario
 from app.core.security import getCurrentUser
-from app.modules.inventario.service import actualizar_inventario, listarInventario
+from app.modules.inventario.service import actualizar_inventario, listar_inventario
 
 
 # Router encargado de las operaciones relacionadas
@@ -55,9 +55,9 @@ def actualizar(
         )
 
 @router.get("/{id_bodega}")
-def obtenerInventario(id_bodega: int, user = Depends(getCurrentUser)):
+def obtener_inventario(id_bodega: int, user = Depends(getCurrentUser)):
     # devuelve inventario de una bodega
     try:
-        return listarInventario(id_bodega)
+        return listar_inventario(id_bodega)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

@@ -383,7 +383,10 @@ CREATE TABLE movimiento (
     id_proyecto INTEGER NULL,
     id_solicitud INTEGER NULL,
     id_proyecto INTEGER NULL,
-    id_proveedor INTEGER NULL, 
+    id_proveedor INTEGER NULL,
+    precio_unitario DECIMAL(12,2) NULL,
+    num_factura VARCHAR(50) NULL,
+    num_oc VARCHAR(50) NULL, 
     observacion VARCHAR(255),
     
 
