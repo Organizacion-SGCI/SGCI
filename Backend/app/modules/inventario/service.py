@@ -4,7 +4,9 @@
 # antes de modificar el inventario.
 
 from app.modules.inventario.repository import (
-    actualizar_cantidad_inventario
+    actualizar_cantidad_inventario,
+    obtener_inventario_bodega,
+    obtener_bodega
 )
 
 
@@ -15,13 +17,11 @@ def actualizar_inventario(
     tipo_movimiento
 ):
     
-   # Actualiza el inventario según el tipo de movimiento.
-
-    #Reglas principales:
-   # - La cantidad debe ser mayor que cero.
-   # - Solo se permiten ENTRADA y SALIDA.
-   # - Una SALIDA no puede superar la cantidad disponible.
-
+    # Actualiza el inventario según el tipo de movimiento.
+    # Reglas principales:
+    # - La cantidad debe ser mayor que cero.
+    # - Solo se permiten ENTRADA y SALIDA.
+    # - Una SALIDA no puede superar la cantidad disponible.
 
     # Validamos que la cantidad sea positiva.
     if cantidad <= 0:
@@ -98,25 +98,22 @@ def actualizar_inventario(
         "cantidad_actual": nueva_cantidad
     }
 
-def listarInventario(id_bodega: int):
-    #devuelve el inventario completo de la bodega
-    from app.modules.inventario.repository import(
-        obtenerInventarioBodega,
-        obtenerBodega
-    )
 
-    bodega = obtenerBodega(id_bodega)
+def listar_inventario(id_bodega: int):
+    # devuelve el inventario completo de la bodega
+
+    bodega = obtener_bodega(id_bodega)
     if bodega is None:
         raise ValueError("Bodega no encontrada")
 
-    materiales = obtenerInventarioBodega(id_bodega)
-        #aca se calcula el stock bajo de cada material
+    materiales = obtener_inventario_bodega(id_bodega)
+    
+    # aca se calcula el stock bajo de cada material
     for m in materiales:
         m["stock_bajo"] = m["cantidad"] <= m["stock_minimo"]
 
-    return{
+    return {
         "id_bodega": bodega["id_bodega"],
         "bodega": bodega["nombre"],
         "materiales": materiales
     }
-            

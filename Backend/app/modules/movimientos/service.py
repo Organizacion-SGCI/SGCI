@@ -2,48 +2,51 @@
 # Valida las reglas antes de registrar un movimiento.
 
 from app.modules.movimientos.repository import (
-    insertarMovimiento,
-    existeMaterial,
-    existeProveedor
+    insertar_movimiento,
+    existe_material,
+    existe_proveedor
 )
 from app.modules.inventario.service import actualizar_inventario
 
 
-def registrarEntrada(
+def registrar_entrada(
     id_material,
     cantidad,
     id_bodega,
     id_proveedor,
     id_usuario,
-    observacion=None
+    observacion=None,
+    precio_unitario=None,
+    num_factura=None,
+    num_oc=None
 ):
     """Registra una entrada de material al inventario."""
 
-    # Validar cantidad
     if cantidad <= 0:
         raise ValueError("La cantidad debe ser mayor que cero.")
 
-    # Validar que el material exista
-    if not existeMaterial(id_material):
+    if not existe_material(id_material):
         raise ValueError("El material no existe.")
 
-    # Validar que el proveedor exista
-    if not existeProveedor(id_proveedor):
+    if not existe_proveedor(id_proveedor):
         raise ValueError("El proveedor no existe.")
 
-    # 1. Insertar el movimiento (ENTRADA)
-    movimiento = insertarMovimiento(
+    #  Insertar el movimiento
+    movimiento = insertar_movimiento(
         tipo="ENTRADA",
         cantidad=cantidad,
         id_material=id_material,
         id_usuario=id_usuario,
-        id_bodega_origen=None,          # no aplica al entrar
-        id_bodega_destino=id_bodega,     # bodega que recibe
+        id_bodega_origen=None,
+        id_bodega_destino=id_bodega,
         id_proveedor=id_proveedor,
-        observacion=observacion
+        observacion=observacion,
+        precio_unitario=precio_unitario,
+        num_factura=num_factura,
+        num_oc=num_oc
     )
 
-    #  Actualizar el inventario (T-04)
+    #  Actualizar inventario
     resultado_inventario = actualizar_inventario(
         id_bodega=id_bodega,
         id_material=id_material,
@@ -51,7 +54,7 @@ def registrarEntrada(
         tipo_movimiento="ENTRADA"
     )
 
-    #  Devolver el resultado
+    # Devolver el resultado
     return {
         "id_movimiento": movimiento["id_movimiento"],
         "fecha_movimiento": str(movimiento["fecha_movimiento"]),
@@ -62,5 +65,8 @@ def registrarEntrada(
         "id_proveedor": id_proveedor,
         "id_usuario": id_usuario,
         "observacion": observacion,
+        "precio_unitario": precio_unitario,
+        "num_factura": num_factura,
+        "num_oc": num_oc,
         "cantidad_actual": resultado_inventario["cantidad_actual"]
     }

@@ -88,13 +88,13 @@ def actualizar_cantidad_inventario(
 
 # aca es de H-06 con la consulta al inventario
 
-def obtenerInventarioBodega(id_bodega: int):
-    #se devuelven todos los materiales de la bodega
+def obtener_inventario_bodega(id_bodega: int):
+    # se devuelven todos los materiales de la bodega con sus totales
     with engine.connect() as connection:
-        resultado = connection.execute( # se establece la conexion y se traen estos datos
+        resultado = connection.execute(
             text("""
                 SELECT
-                    i .cantidad,
+                    i.cantidad,
                     i.stock_minimo,
                     m.id_material,
                     m.codigo,
@@ -102,7 +102,9 @@ def obtenerInventarioBodega(id_bodega: int):
                     m.tipo,
                     m.unidad_medida,
                     b.id_bodega,
-                    b.nombre AS bodega
+                    b.nombre AS bodega,
+                    COALESCE((SELECT SUM(cantidad) FROM movimiento WHERE id_material = m.id_material AND id_bodega_destino = i.id_bodega AND tipo = 'ENTRADA'), 0) AS total_entradas,
+                    COALESCE((SELECT SUM(cantidad) FROM movimiento WHERE id_material = m.id_material AND id_bodega_origen = i.id_bodega AND tipo = 'SALIDA'), 0) AS total_salidas
                 FROM inventario i
                 JOIN material m ON m.id_material = i.id_material
                 JOIN bodega b ON b.id_bodega = i.id_bodega
@@ -111,9 +113,9 @@ def obtenerInventarioBodega(id_bodega: int):
             """),
             {"id_bodega": id_bodega}    
         )
-        return[dict(fila._mapping) for fila in resultado]
+        return [dict(fila._mapping) for fila in resultado]
 
-def obtenerBodega(id_bodega: int):
+def obtener_bodega(id_bodega: int):
     # se devuelven los datos de una bodega
     with engine.connect() as connection:
         #se obtienen datos de la bodega seleccionada
