@@ -190,7 +190,7 @@ const [usuario, setUsuario] = useState(null);
                   </th>
 
                   <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Tipo
+                    Categoría
                   </th>
 
                   {/* H-06.2: columna nueva */}
@@ -198,8 +198,17 @@ const [usuario, setUsuario] = useState(null);
                     Bodega
                   </th>
 
+                  {/* H-06.3: columnas nuevas */}
                   <th className="px-6 py-4 text-left text-sm font-semibold">
-                    Cantidad
+                    Total entradas
+                  </th>
+
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Total salidas
+                  </th>
+
+                  <th className="px-6 py-4 text-left text-sm font-semibold">
+                    Stock actual
                   </th>
 
                   {/* H-06.2: columna nueva */}
@@ -244,6 +253,15 @@ const [usuario, setUsuario] = useState(null);
                     {/* H-06.2: celda nueva */}
                     <td className="px-6 py-4 text-gray-600">
                       {material.bodega}
+                    </td>
+
+                    {/* H-06.3: celdas nuevas */}
+                    <td className="px-6 py-4 text-gray-600">
+                      {material.total_entradas}
+                    </td>
+
+                    <td className="px-6 py-4 text-gray-600">
+                      {material.total_salidas}
                     </td>
 
                     {/* H-06.2: la cantidad se pinta en rojo si hay stock bajo */}
@@ -309,6 +327,9 @@ const [usuario, setUsuario] = useState(null);
           ? {
               ...material,
               cantidad: resultado.cantidad_actual,
+               // H-06.3: suma lo ingresado al total de entradas
+              total_entradas: material.total_entradas + resultado.cantidad,
+
               // H-06.2: se recalcula el indicador con la cantidad nueva
               stock_bajo: resultado.cantidad_actual <= material.stock_minimo,
             }
