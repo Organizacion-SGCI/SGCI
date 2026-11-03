@@ -5,8 +5,20 @@ import Guard from "@/components/Guard";
 import { useState } from "react";
 import ModalCerrarSesion from "@/components/ModalCerrarSesion";
 
-export default function Sidebar({ usuario, activo = "" }) {
+export default function Sidebar({
+  usuario,
+  activo = "",
+  onNavigate,
+}) {
   const router = useRouter();
+  const navegar = (ruta) => {
+  if (onNavigate) {
+    onNavigate(ruta);
+    return;
+  }
+
+  router.push(ruta);
+};
   const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
 
   const opcionClase = (nombre) =>
@@ -71,7 +83,7 @@ export default function Sidebar({ usuario, activo = "" }) {
       <nav className="min-h-0 flex-1 overflow-y-auto py-6">
 
         <div
-          onClick={() => router.push("/dashboard")}
+          onClick={() => navegar("/dashboard")}
           className={opcionClase("dashboard")}
         >
           <span className="text-lg">⌂</span>
@@ -80,7 +92,7 @@ export default function Sidebar({ usuario, activo = "" }) {
 
         <Guard permiso="ver_inventario">
           <div
-            onClick={() => router.push("/inventario")}
+            onClick={() => navegar("/dashboard")}
             className={opcionClase("materiales")}
           >
             <span>▦</span>
@@ -90,7 +102,7 @@ export default function Sidebar({ usuario, activo = "" }) {
 
         <Guard permiso="emitir_vale">
           <div
-            onClick={() => router.push("/salida")}
+            onClick={() => router.push("/contexto")}
             className={opcionClase("salida")}
           >
             <span>▤</span>
