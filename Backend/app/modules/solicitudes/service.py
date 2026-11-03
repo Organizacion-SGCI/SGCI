@@ -133,6 +133,8 @@ def obtener_solicitudes(id_usuario, rol, estado=None):
             "fecha_solicitud": s["fecha_solicitud"].isoformat(),
             "estado": s["estado"],
             "prioridad": s["prioridad"],
+            "id_bodega_origen": s["id_bodega_origen"],
+            "id_bodega_destino": s["id_bodega_destino"],
             "bodega_origen": s["bodega_origen"],
             "bodega_destino": s["bodega_destino"],
             "solicitante": s["solicitante"],

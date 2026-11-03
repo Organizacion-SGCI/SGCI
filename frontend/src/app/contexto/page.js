@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { obtenerContextos } from "@/services/contextoService";
-import ModalCerrarSesion from "@/components/ModalCerrarSesion";
+import Sidebar from "@/components/Sidebar";
+import Header from "@/components/Header";
 
 export default function Contexto() {
   const [usuario, setUsuario] = useState(null);
@@ -16,7 +17,6 @@ export default function Contexto() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 const [avisoNavegacion, setAvisoNavegacion] = useState("");
-const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -132,178 +132,25 @@ const seleccionarProyecto = (proyecto) => {
     {/* ====================================================== */}
     {/* SIDEBAR */}
     {/* ====================================================== */}
-    <aside
-      className="
-        fixed top-0 left-0 z-30
-        h-screen w-[250px]
-        bg-gradient-to-b
-        from-[#0b513b]/95
-        via-[#07513c]/95
-        to-[#064632]/95
-        backdrop-blur-md
-        border-r border-white/10
-        shadow-2xl
-        flex flex-col
-      "
-    >
-   {/* Logo */}
-<div
-  onClick={() => router.push("/")}
-  className="
-    bg-white/85
-    backdrop-blur-md
-    min-h-[95px]
-    px-5
-    flex items-center
-    rounded-br-[30px]
-    cursor-pointer
-  "
->
-  <img
-    src="/images/logo-parque-tempisque.png"
-    alt="Parque Tempisque"
-    className="h-14 w-auto object-contain"
-  />
+   <Header usuario={usuario} titulo="Selección de contexto" />
 
-  <span className="ml-3 text-[#315c49] text-xl font-semibold">
-    Parque
-    <br />
-    Tempisque
-  </span>
-</div>
-
-      {/* Usuario */}
-      <div className="px-7 pt-10 pb-7 border-b border-white/15">
-        <div className="flex items-center gap-4">
-
-          {/* Icono usuario */}
-          <div
-            className="
-              w-12 h-12
-              bg-white/90
-              rounded-full
-              flex items-center justify-center
-              text-[#0b513b]
-              text-2xl
-            "
-          >
-            👤
-          </div>
-
-          <div>
-            <p className="text-white text-lg font-semibold">
-              {usuario?.nombre}
-            </p>
-
-            <p className="text-white/65 text-sm mt-1">
-              {usuario?.rol}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Menú */}
-      <nav className="flex-1 px-5 py-7 space-y-2">
-
-        <div
-  onClick={() => navegarConContexto("/dashboard")}
-  className="
-    flex items-center gap-4
-    px-4 py-3
-    rounded-xl
-    text-white/75
-    hover:bg-white/10
-    hover:text-white
-    transition
-    cursor-pointer
-  "
->
-  <span>⌂</span>
-  <span>Dashboard</span>
-</div>
-
-        <div
-  onClick={() => navegarConContexto("/inventario")}
-  className="
-    flex items-center gap-4
-    px-4 py-3
-    rounded-xl
-    text-white/75
-    hover:bg-white/10
-    hover:text-white
-    transition
-    cursor-pointer
-  "
->
-  <span>▣</span>
-  <span>Materiales</span>
-</div>
-
-        <div className="flex items-center gap-4 px-4 py-3 rounded-xl text-white/75">
-          <span>▤</span>
-          <span>Trazabilidad</span>
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3 rounded-xl text-white/75">
-          <span>◉</span>
-          <span>Reportes</span>
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3 rounded-xl text-white/75">
-          <span>⇄</span>
-          <span>Transferencias</span>
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3 rounded-xl text-white/75">
-          <span>📄</span>
-          <span>Pedidos</span>
-        </div>
-
-        <div className="border-t border-white/15 my-5" />
-
-        <div className="flex items-center gap-4 px-4 py-3 rounded-xl text-white/75">
-          <span>⚙</span>
-          <span>Configuración</span>
-        </div>
-
-      </nav>
-
-      {/* CERRAR SESIÓN */}
-        <div className="p-5">
-          <button
-            onClick={() => setModalCerrarAbierto(true)}
-            className="
-              w-full
-              flex items-center justify-center gap-2
-              bg-red-600
-              text-white
-              font-semibold
-              rounded-xl
-              py-3
-              text-sm
-              hover:bg-red-700
-              transition-all
-              cursor-pointer
-              shadow-lg
-            "
-          >
-            <span className="text-lg"></span>
-            Cerrar sesión
-          </button>
-        </div>
-    </aside>
+<Sidebar
+  usuario={usuario}
+  activo="contexto"
+  onNavigate={navegarConContexto}
+/>
 
     {/* ====================================================== */}
     {/* CONTENIDO */}
     {/* ====================================================== */}
     <section
-      className="
-        relative z-10
-        ml-[250px]
-        min-h-screen
-        flex items-center justify-center
-        px-8 py-12
-      "
+     className="
+  relative z-10
+  ml-[230px]
+  min-h-screen
+  flex items-center justify-center
+  px-8 pb-12 pt-[120px]
+"
     >
 
       {/* Panel central */}
@@ -555,11 +402,6 @@ const seleccionarProyecto = (proyecto) => {
 
       </div>
     </section>
-    {/* MODAL DE CERRAR SESIÓN */}
-          <ModalCerrarSesion
-            abierto={modalCerrarAbierto}
-            onCerrar={() => setModalCerrarAbierto(false)}
-    />
   </main>
 );
 }

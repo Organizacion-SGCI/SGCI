@@ -72,12 +72,15 @@ def existe_bodega(id_bodega):
 
 def _consultar_solicitudes(condicion, parametros, estado=None):
     # Consulta las cabeceras de las solicitudes
+    
     sql = """
         SELECT
             s.id_solicitud,
             s.fecha_solicitud,
             s.estado,
             s.prioridad,
+            s.id_bodega_origen,
+            s.id_bodega_destino,
             bo.nombre AS bodega_origen,
             bd.nombre AS bodega_destino,
             u.nombre AS solicitante
