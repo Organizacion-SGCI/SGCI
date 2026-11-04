@@ -61,8 +61,13 @@ const navegarConContexto = (ruta) => {
     (!contextoActivo.id_bodega && !contextoActivo.id_proyecto)
   ) {
     setAvisoNavegacion(
-      "Primero seleccione una bodega o proyecto para acceder a Dashboard o Materiales."
+      "Primero seleccione una bodega o proyecto para continuar."
     );
+    return;
+  }
+
+  if (ruta === "/salida" && !contextoActivo.id_bodega) {
+    setAvisoNavegacion("Seleccione una bodega para emitir un vale.");
     return;
   }
 
