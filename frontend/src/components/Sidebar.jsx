@@ -92,7 +92,7 @@ export default function Sidebar({
 
         <Guard permiso="ver_inventario">
           <div
-            onClick={() => navegar("/dashboard")}
+            onClick={() => navegar("/inventario")}
             className={opcionClase("materiales")}
           >
             <span>▦</span>
@@ -102,7 +102,7 @@ export default function Sidebar({
 
         <Guard permiso="emitir_vale">
           <div
-            onClick={() => router.push("/contexto")}
+            onClick={() => navegar("/salida")}
             className={opcionClase("salida")}
           >
             <span>▤</span>
@@ -118,11 +118,14 @@ export default function Sidebar({
         </Guard>
 
         <Guard permiso="generar_reporte">
-          <div className={opcionClase("reportes")}>
-            <span>◉</span>
-            Reportes
-          </div>
-        </Guard>
+  <div
+    onClick={() => navegar("/reportes")}
+    className={opcionClase("reportes")}
+  >
+    <span>◉</span>
+    Reportes
+  </div>
+</Guard>
 
         <Guard permiso="transferir_material">
           <div className={opcionClase("transferencias")}>
@@ -133,22 +136,22 @@ export default function Sidebar({
 
         <Guard permiso="solicitar_material">
   <div
-    onClick={() => router.push("/solicitudes")}
+    onClick={() => navegar("/solicitudes")}
     className={opcionClase("solicitudes")}
   >
     <span>▥</span>
-    Pedidos
+    Mis solicitudes
   </div>
 </Guard>
 
         {/* gestion de solicitudes*/}
         <Guard permiso="aprobar_solicitud">
           <div
-            onClick={() => router.push("/solicitudes")}
+            onClick={() => navegar("/solicitudes")}
             className={opcionClase("solicitudes")}
           >
             <span>▧</span>
-            Solicitudes
+            Revisar solicitudes
           </div>
         </Guard>
         

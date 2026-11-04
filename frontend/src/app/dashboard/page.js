@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Guard from "@/components/Guard";
-import ModalCerrarSesion from "@/components/ModalCerrarSesion";
+import Sidebar from "@/components/Sidebar";
 import CampanaNotificaciones from "@/components/CampanaNotificaciones";
 export default function Dashboard() {
   const [usuario, setUsuario] = useState(null);
   const [contexto, setContexto] = useState(null);
-  const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
   const router = useRouter();
   const [token, setToken] = useState("");
 
@@ -112,197 +111,7 @@ export default function Dashboard() {
       {/* ====================================================== */}
       {/* BARRA LATERAL */}
       {/* ====================================================== */}
-      <aside
-        className="
-          fixed
-          top-[82px]
-          left-0
-          bottom-0
-          w-[230px]
-          bg-[#10583f]
-          text-white
-          z-20
-          rounded-tr-[28px]
-          shadow-xl
-          flex
-          flex-col
-        "
-      >
-
-        {/* USUARIO */}
-        <div
-          onClick={() => router.push("/contexto")}
-          className="
-    px-6 pt-8 pb-7
-    border-b border-white/10
-    cursor-pointer
-    transition
-    hover:bg-white/10
-  "
-          title="Cambiar contexto"
-        >
-
-          <div className="flex items-center gap-3">
-
-            {/* ICONO USUARIO */}
-            <div
-              className="
-                w-11 h-11
-                bg-[#dcefd7]
-                text-[#145c42]
-                rounded-full
-                flex items-center
-                justify-center
-                font-bold
-                text-lg
-              "
-            >
-              {usuario.nombre?.charAt(0).toUpperCase()}
-            </div>
-
-            <div>
-              <p className="font-semibold text-sm">
-                {usuario.nombre}
-              </p>
-
-              <p className="text-xs text-white/65 mt-1">
-                {usuario.rol}
-              </p>
-            </div>
-
-          </div>
-        </div>
-
-
-        {/* NAVEGACIÓN */}
-        <nav className="flex-1 py-6">
-
-          {/* DASHBOARD - visible para todos los roles */}
-          <div
-            className="
-      mx-3
-      mb-2
-      px-5
-      py-3
-      bg-[#209b70]
-      rounded-xl
-      flex
-      items-center
-      gap-3
-      font-semibold
-      text-sm
-    "
-          >
-            <span className="text-lg">⌂</span>
-            Dashboard
-          </div>
-
-          {/* MATERIALES - visible con permiso ver_inventario */}
-          <Guard permiso="ver_inventario">
-            <div
-              onClick={() => router.push("/inventario")}
-              className="mx-3 px-5 py-3 rounded-xl flex items-center gap-3 text-sm text-white/85 hover:bg-white/10 transition cursor-pointer"
-            >
-              <span>▦</span>
-              Materiales
-            </div>
-          </Guard>
-
-          {/* TRAZABILIDAD - visible con permiso ver_trazabilidad */}
-          <Guard permiso="ver_trazabilidad">
-            <div className="mx-3 px-5 py-3 rounded-xl flex items-center gap-3 text-sm text-white/85 hover:bg-white/10 transition cursor-pointer">
-              <span>▤</span>
-              Trazabilidad
-            </div>
-          </Guard>
-
-          {/* REPORTES - visible con permiso generar_reporte */}
-          <Guard permiso="generar_reporte">
-            <div className="mx-3 px-5 py-3 rounded-xl flex items-center gap-3 text-sm text-white/85 hover:bg-white/10 transition cursor-pointer">
-              <span>◉</span>
-              Reportes
-            </div>
-          </Guard>
-
-          {/* TRANSFERENCIAS - solo visible para Jefe de Bodega */}
-          <Guard permiso="transferir_material">
-            <div className="mx-3 px-5 py-3 rounded-xl flex items-center gap-3 text-sm text-white/85 hover:bg-white/10 transition cursor-pointer">
-              <span>⇄</span>
-              Transferencias
-            </div>
-          </Guard>
-
-          {/* PEDIDOS - solo visible para Encargado */}
-          <Guard permiso="solicitar_material">
-  <button
-    type="button"
-    onClick={() => router.push("/solicitudes")}
-    className="
-      mx-3 px-5 py-3 rounded-xl
-      flex items-center gap-3 text-sm
-      text-white/85 hover:bg-white/10
-      transition cursor-pointer
-    "
-  >
-    <span aria-hidden="true">▥</span>
-    Mis solicitudes
-  </button>
-</Guard>
-
-<Guard permiso="aprobar_solicitud">
-  <button
-    type="button"
-    onClick={() => router.push("/solicitudes")}
-    className="
-      mx-3 px-5 py-3 rounded-xl
-      flex items-center gap-3 text-sm
-      text-white/85 hover:bg-white/10
-      transition cursor-pointer
-    "
-  >
-    <span aria-hidden="true">▧</span>
-    Revisar solicitudes
-  </button>
-</Guard>
-
-          <div className="mx-6 my-5 border-t border-white/15" />
-
-          {/* CONFIGURACIÓN - solo visible para Administrador */}
-          <Guard permiso="gestionar_usuario">
-            <div className="mx-3 px-5 py-3 rounded-xl flex items-center gap-3 text-sm text-white/85 hover:bg-white/10 transition cursor-pointer">
-              <span>⚙</span>
-              Configuración
-            </div>
-          </Guard>
-
-        </nav>
-
-
-      {/* CERRAR SESIÓN */}
-        <div className="p-5">
-          <button
-            onClick={() => setModalCerrarAbierto(true)}
-            className="
-              w-full
-              flex items-center justify-center gap-2
-              bg-red-600
-              text-white
-              font-semibold
-              rounded-xl
-              py-3
-              text-sm
-              hover:bg-red-700
-              transition-all
-              cursor-pointer
-              shadow-lg
-            "
-          >
-            <span className="text-lg"></span>
-            Cerrar sesión
-          </button>
-        </div>
-
-      </aside>
+      <Sidebar usuario={usuario} activo="dashboard" />
 
       {/* ====================================================== */}
       {/* CONTENIDO PRINCIPAL */}
@@ -692,11 +501,6 @@ export default function Dashboard() {
         </div>
 
       </section>
-      {/* MODAL DE CERRAR SESIÓN */}
-      <ModalCerrarSesion
-        abierto={modalCerrarAbierto}
-        onCerrar={() => setModalCerrarAbierto(false)}
-      />
 
     </main>
   );
