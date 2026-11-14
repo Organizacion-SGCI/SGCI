@@ -240,3 +240,31 @@ def obtener_solicitudes_aprobadas():
             solicitud["materiales"] = [dict(fila._mapping) for fila in resultado_detalle]
 
         return solicitudes
+
+def obtener_solicitud_por_id(id_solicitud: int):
+    """Obtiene la cabecera de una solicitud por su ID."""
+    with engine.connect() as connection:
+        resultado = connection.execute(
+            text("""
+                SELECT id_solicitud, estado, id_bodega_destino
+                FROM solicitud
+                WHERE id_solicitud = :id_solicitud
+            """),
+            {"id_solicitud": id_solicitud}
+        )
+        fila = resultado.fetchone()
+        return dict(fila._mapping) if fila else None
+
+def actualizar_estado_solicitud_y_pedido(id_solicitud: int, nuevo_estado: str):
+    """Cambia el estado de la solicitud y del pedido asociado."""
+    with engine.begin() as connection:
+        # 1. Actualizamos la solicitud
+        connection.execute(
+            text("UPDATE solicitud SET estado = :estado WHERE id_solicitud = :id"),
+            {"estado": nuevo_estado, "id": id_solicitud}
+        )
+        # 2. Actualizamos el pedido (si existe)
+        connection.execute(
+            text("UPDATE pedido SET estado = 'COMPLETADO' WHERE id_solicitud = :id"),
+            {"id": id_solicitud}
+        )
