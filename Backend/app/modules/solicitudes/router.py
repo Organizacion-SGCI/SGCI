@@ -10,6 +10,7 @@ from app.modules.solicitudes.service import (
     obtener_solicitudes,
     cambiar_estado_solicitud,
     agregar_materiales_a_solicitud,
+    listar_solicitudes_aprobadas,
     SolicitudNoEncontrada,
     SinPermisoSobreSolicitud
 )
@@ -124,5 +125,13 @@ def agregar_materiales_endpoint(
         raise HTTPException(status_code=404, detail=str(e))
     except SinPermisoSobreSolicitud as e:
         raise HTTPException(status_code=403, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/aprobadas")
+def obtener_aprobadas(user=Depends(getCurrentUser)):
+    """Lista las solicitudes aprobadas listas para transferencia."""
+    try:
+        return listar_solicitudes_aprobadas()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
