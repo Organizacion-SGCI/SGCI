@@ -15,9 +15,9 @@ from app.modules.solicitudes.repository import (
 from app.modules.notificaciones.service import registrar_notificacion
 from app.modules.solicitudes.repository import (
     obtener_solicitud_por_id, 
-    actualizar_estado_solicitud
+    actualizar_estado_solicitud,
+    obtener_solicitudes_aprobadas
 )
-
 
 
 
@@ -270,3 +270,7 @@ def agregar_materiales_a_solicitud(id_usuario, id_solicitud, materiales):
             for m in listado
         ]
     }
+
+def listar_solicitudes_aprobadas():
+    """Devuelve la lista de solicitudes listas para transferir."""
+    return obtener_solicitudes_aprobadas()
