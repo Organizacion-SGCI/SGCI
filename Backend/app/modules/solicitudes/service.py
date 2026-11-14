@@ -10,14 +10,16 @@ from app.modules.solicitudes.repository import (
     listar_solicitudes_de_mis_bodegas,
     listar_materiales_de_solicitudes,
     obtener_ids_materiales_de_solicitud,
-    agregar_detalles_solicitud
-)
-from app.modules.notificaciones.service import registrar_notificacion
-from app.modules.solicitudes.repository import (
+    agregar_detalles_solicitud,
     obtener_solicitud_por_id, 
     actualizar_estado_solicitud,
-    obtener_solicitudes_aprobadas
+    obtener_solicitudes_aprobadas,
+    actualizar_estado_solicitud_y_pedido
 )
+from app.modules.notificaciones.service import registrar_notificacion
+from app.modules.inventario.service import actualizar_inventario
+from sqlalchemy import text
+from app.core.database import engine
 
 
 
@@ -274,3 +276,37 @@ def agregar_materiales_a_solicitud(id_usuario, id_solicitud, materiales):
 def listar_solicitudes_aprobadas():
     """Devuelve la lista de solicitudes listas para transferir."""
     return obtener_solicitudes_aprobadas()
+
+def confirmar_recepcion_pedido(id_solicitud: int):
+    """Suma el stock en la bodega destino y cierra la solicitud."""
+    
+    # Validar que la solicitud exista y esté EN_TRANSITO
+    solicitud = obtener_solicitud_por_id(id_solicitud)
+    if not solicitud:
+        raise ValueError("La solicitud no existe.")
+    if solicitud["estado"] != "EN_TRANSITO":
+        raise ValueError("La solicitud no está en tránsito, no se puede recibir.")
+
+    id_bodega_destino = solicitud["id_bodega_destino"]
+
+    #Traer los materiales solicitados
+    with engine.connect() as connection:
+        resultado = connection.execute(
+            text("SELECT id_material, cantidad_solicitada FROM detalle_solicitud WHERE id_solicitud = :id"),
+            {"id": id_solicitud}
+        )
+        materiales = [dict(fila._mapping) for fila in resultado]
+
+    #Sumar el stock en la bodega destino
+    for m in materiales:
+        actualizar_inventario(
+            id_bodega=id_bodega_destino,
+            id_material=m["id_material"],
+            cantidad=m["cantidad_solicitada"],
+            tipo_movimiento="ENTRADA" # Simula la entrada a la bodega destino
+        )
+
+    # Cambiar estados
+    actualizar_estado_solicitud_y_pedido(id_solicitud, "COMPLETADA")
+
+    return {"mensaje": "Pedido recibido y stock actualizado correctamente."}
