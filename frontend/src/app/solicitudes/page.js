@@ -374,15 +374,13 @@ export default function Solicitudes() {
 
                             {/* RECIBIR PEDIDO: solo si está EN_TRANSITO */}
                             {solicitud.estado === "EN_TRANSITO" && (
-                              <Guard permiso="recibir_pedido"> {/* Si tienen este permiso, o si no, quitá el Guard */}
-                                <button
-                                  type="button"
-                                  onClick={() => setPedidoARecebir(solicitud)}
-                                  className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-                                >
-                                  Recibir Pedido
-                                </button>
-                              </Guard>
+                              <button
+                                type="button"
+                                onClick={() => setPedidoARecebir(solicitud)}
+                                className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                              >
+                                Recibir Pedido
+                              </button>
                             )}
 
                           </div>
