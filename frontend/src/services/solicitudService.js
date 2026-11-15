@@ -130,3 +130,21 @@ export async function obtenerBodegas(token) {
 
   return datos;
 }
+
+export async function confirmarRecepcion(id_solicitud, token) {
+  const respuesta = await fetch(`${API_URL}/solicitudes/${id_solicitud}/recibir`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(datos.detail || "Error al confirmar la recepción");
+  }
+
+  return datos;
+}
