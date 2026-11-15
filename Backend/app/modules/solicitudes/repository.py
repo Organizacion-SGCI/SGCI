@@ -144,13 +144,13 @@ def listar_materiales_de_solicitudes(ids_solicitud):
         )
         return [dict(fila._mapping) for fila in resultado]
 
-def obtener_solicitud_por_id(id_solicitud):
-    # Trae la solicitud con el id_usuario del solicitante
+def obtener_solicitud_por_id(id_solicitud: int):
+    """Obtiene la cabecera de una solicitud por su ID."""
     with engine.connect() as connection:
         resultado = connection.execute(
             text("""
-                SELECT id_solicitud, estado, id_usuario 
-                FROM solicitud 
+                SELECT * 
+                FROM solicitud
                 WHERE id_solicitud = :id_solicitud
             """),
             {"id_solicitud": id_solicitud}
@@ -246,7 +246,7 @@ def obtener_solicitud_por_id(id_solicitud: int):
     with engine.connect() as connection:
         resultado = connection.execute(
             text("""
-                SELECT id_solicitud, estado, id_bodega_destino
+                SELECT * 
                 FROM solicitud
                 WHERE id_solicitud = :id_solicitud
             """),

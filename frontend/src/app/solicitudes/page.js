@@ -8,7 +8,7 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Guard from "@/components/Guard";
 import ModalDecisionSolicitud from "@/components/ModalDecisionSolicitud";
-
+import ModalRecibirPedido from "@/components/ModalRecibirPedido";
 import { obtenerSolicitudes } from "@/services/solicitudService";
 
 // H-05.3: pantalla de gestión de solicitudes.
@@ -67,6 +67,8 @@ export default function Solicitudes() {
   const [mensaje, setMensaje] = useState("");
 
   const [modalSolicitudAbierto, setModalSolicitudAbierto] = useState(false);
+
+  const [pedidoARecebir, setPedidoARecebir] = useState(null);
 
   useEffect(() => {
     const cargarSolicitudes = async () => {
@@ -171,17 +173,17 @@ export default function Solicitudes() {
               Revise, apruebe o rechace las solicitudes de las bodegas
             </p>
             <Guard permiso="solicitar_material">
-  <button
-    type="button"
-    onClick={() => setModalSolicitudAbierto(true)}
-    className="
+              <button
+                type="button"
+                onClick={() => setModalSolicitudAbierto(true)}
+                className="
       mt-5 rounded-xl bg-[#145c42] px-6 py-3
       font-semibold text-white transition hover:bg-[#0f4934]
     "
-  >
-    + Solicitar material
-  </button>
-</Guard>
+              >
+                + Solicitar material
+              </button>
+            </Guard>
           </div>
 
           {/* MENSAJE DE ÉXITO */}
@@ -296,10 +298,9 @@ export default function Solicitudes() {
 
                         <td className="px-6 py-4">
                           <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              COLOR_PRIORIDAD[solicitud.prioridad] ||
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${COLOR_PRIORIDAD[solicitud.prioridad] ||
                               "bg-gray-100 text-gray-600"
-                            }`}
+                              }`}
                           >
                             {solicitud.prioridad}
                           </span>
@@ -307,10 +308,9 @@ export default function Solicitudes() {
 
                         <td className="px-6 py-4">
                           <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              COLOR_ESTADO[solicitud.estado] ||
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${COLOR_ESTADO[solicitud.estado] ||
                               "bg-gray-100 text-gray-600"
-                            }`}
+                              }`}
                           >
                             {solicitud.estado}
                           </span>
@@ -370,6 +370,19 @@ export default function Solicitudes() {
                                   </button>
                                 </Guard>
                               </>
+                            )}
+
+                            {/* RECIBIR PEDIDO: solo si está EN_TRANSITO */}
+                            {solicitud.estado === "EN_TRANSITO" && (
+                              <Guard permiso="recibir_pedido"> {/* Si tienen este permiso, o si no, quitá el Guard */}
+                                <button
+                                  type="button"
+                                  onClick={() => setPedidoARecebir(solicitud)}
+                                  className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                                >
+                                  Recibir Pedido
+                                </button>
+                              </Guard>
                             )}
 
                           </div>
@@ -467,16 +480,16 @@ export default function Solicitudes() {
         </div>
       </section>
 
-<ModalSolicitudMaterial
-  abierto={modalSolicitudAbierto}
-  onCerrar={() => setModalSolicitudAbierto(false)}
-  onSolicitudRegistrada={(resultado) => {
-    setMensaje(
-      `La solicitud #${resultado.id_solicitud} fue registrada correctamente.`
-    );
-    setRecarga((valor) => valor + 1);
-  }}
-/>
+      <ModalSolicitudMaterial
+        abierto={modalSolicitudAbierto}
+        onCerrar={() => setModalSolicitudAbierto(false)}
+        onSolicitudRegistrada={(resultado) => {
+          setMensaje(
+            `La solicitud #${resultado.id_solicitud} fue registrada correctamente.`
+          );
+          setRecarga((valor) => valor + 1);
+        }}
+      />
       {/* VENTANA DE APROBAR / RECHAZAR */}
       {decision && (
         <ModalDecisionSolicitud
@@ -484,6 +497,17 @@ export default function Solicitudes() {
           accion={decision.accion}
           onCerrar={() => setDecision(null)}
           onConfirmada={decisionConfirmada}
+        />
+      )}
+      {pedidoARecebir && (
+        <ModalRecibirPedido
+          abierto={!!pedidoARecebir}
+          solicitud={pedidoARecebir}
+          onCerrar={() => setPedidoARecebir(null)}
+          onExito={() => {
+            setMensaje(`El pedido #${pedidoARecebir.id_solicitud} fue recibido correctamente.`);
+            setRecarga((valor) => valor + 1); // Recarga la tabla
+          }}
         />
       )}
 

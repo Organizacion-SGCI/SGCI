@@ -1,4 +1,5 @@
 import { obtenerInventario } from "@/services/inventarioService";
+const API_URL = "http://127.0.0.1:8000";
 
 // H-10.2: consulta las existencias para revisar una transferencia.
 // Estos IDs representan el movimiento físico de los materiales:
@@ -140,4 +141,25 @@ export async function consultarExistenciasTransferencia({
     },
     materiales,
   };
+}
+export async function confirmarTransferencia(id_solicitud, token) {
+  // La ruta correcta es POST /transferencias/ y se manda el id en el body
+  const respuesta = await fetch(`${API_URL}/transferencias/`, {
+    method: "POST", 
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      id_solicitud: Number(id_solicitud)
+    })
+  });
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(datos.detail || "Error al confirmar la transferencia");
+  }
+
+  return datos;
 }
