@@ -373,3 +373,15 @@ AND p.nombre IN (
     'Proyecto Comercial B',
     'Proyecto Habitacional C'
 );
+
+
+
+
+-- ============================================================
+-- 10. PROVEEDORES
+-- ============================================================
+
+INSERT INTO proveedor (nombre, contacto, telefono, direccion)
+VALUES
+    ('Cemex Costa Rica', 'Servicio al cliente', '2222-1111', 'San José'),
+    ('Ferretería El Colono', 'Ventas', '2666-2222', 'Liberia, Guanacaste');
