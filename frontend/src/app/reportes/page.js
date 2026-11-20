@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import TablaMovimientos from "@/components/TablaMovimientos";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Guard from "@/components/Guard";
@@ -297,6 +297,73 @@ function ReporteMovimientos() {
               </div>
             </fieldset>
           </form>
+          {/* Vista de prueba disponible únicamente al ejecutar npm run dev.
+    No se muestra en la compilación de producción.
+    Se puede eliminar cuando se complete la integración. */}
+{process.env.NODE_ENV === "development" && (
+  <details className="mt-6 rounded-2xl border border-amber-300 bg-white p-6">
+    <summary className="cursor-pointer font-semibold text-amber-800">
+      Vista de prueba de la tabla — datos ficticios
+    </summary>
+
+    <p className="mt-3 mb-6 text-sm text-gray-600">
+      Estos ejemplos no pertenecen al contexto activo y no responden
+      a los filtros. Solo permiten revisar la presentación de la tabla.
+    </p>
+
+    <TablaMovimientos
+      movimientos={[
+        {
+          id_movimiento: "DEMO-1",
+          fecha_movimiento: "2026-11-04T09:30:00-06:00",
+          tipo: "ENTRADA",
+          codigo_material: "MAT-001",
+          material: "Cemento",
+          cantidad: 10,
+          unidad_medida: "Saco",
+          origen: "Proveedor de ejemplo",
+          destino: "Bodega de ejemplo",
+          responsable: "Usuario de prueba",
+          observacion: "Entrada ficticia para revisar la tabla.",
+        },
+        {
+          id_movimiento: "DEMO-2",
+          fecha_movimiento: "2026-11-04T10:00:00-06:00",
+          tipo: "SALIDA",
+          codigo_material: "MAT-004",
+          material: "Varilla",
+          cantidad: 3,
+          unidad_medida: "Unidad",
+          origen: "Bodega de ejemplo",
+          destino: "Proyecto de ejemplo",
+          responsable: "Usuario de prueba",
+          observacion: null,
+        },
+        {
+          id_movimiento: "DEMO-3",
+          fecha_movimiento: "2026-11-04T10:30:00-06:00",
+          tipo: "TRANSFERENCIA",
+          codigo_material: "MAT-003",
+          material: "Bloques",
+          cantidad: 5,
+          unidad_medida: "Unidad",
+          origen: "Bodega de ejemplo",
+          destino: "Subbodega de ejemplo",
+          responsable: "Usuario de prueba",
+          observacion: "Transferencia ficticia.",
+        },
+      ]}
+    />
+
+    <div className="mt-6 border-t border-gray-200 pt-6">
+      <p className="mb-3 font-semibold text-[#173d30]">
+        Prueba sin resultados
+      </p>
+
+      <TablaMovimientos movimientos={[]} />
+    </div>
+  </details>
+)}
 
           {error && (
             <div
@@ -329,16 +396,10 @@ function ReporteMovimientos() {
               </p>
             )}
 
-            {resultado && !resultado.pendienteIntegracion && (
-              resultado.movimientos.length === 0 ? (
-                <p>No hay movimientos para los filtros seleccionados.</p>
-              ) : (
-                <p>
-                  Se recibieron {resultado.movimientos.length} movimientos.
-                  La tabla de resultados estará disponible próximamente.
-                </p>
-              )
-            )}
+         {/* H-15.3: muestra únicamente resultados de una consulta disponible. */}
+{!consultando && !error && resultado && !resultado.pendienteIntegracion && (
+  <TablaMovimientos movimientos={resultado.movimientos} />
+)}
 
             {/*
              * H-15.3 — Punto de integración de la tabla:
