@@ -200,3 +200,71 @@ def agregar_detalles_solicitud(id_solicitud, materiales):
                     "cantidad": item["cantidad"]
                 }
             )
+
+def obtener_solicitudes_aprobadas():
+    """Devuelve todas las solicitudes en estado APROBADA."""
+    with engine.connect() as connection:
+        resultado = connection.execute(
+            text("""
+                SELECT
+                    s.id_solicitud,
+                    s.fecha_solicitud,
+                    s.estado,
+                    s.prioridad,
+                    bo.nombre AS bodega_origen,
+                    bd.nombre AS bodega_destino,
+                    u.nombre AS solicitante
+                FROM solicitud s
+                JOIN bodega bo ON bo.id_bodega = s.id_bodega_origen
+                JOIN bodega bd ON bd.id_bodega = s.id_bodega_destino
+                JOIN usuario u ON u.id_usuario = s.id_usuario
+                WHERE s.estado = 'APROBADA'
+                ORDER BY s.fecha_solicitud DESC
+            """)
+        )
+        solicitudes = [dict(fila._mapping) for fila in resultado]
+
+        for solicitud in solicitudes:
+            resultado_detalle = connection.execute(
+                text("""
+                    SELECT
+                        ds.id_material,
+                        m.nombre AS material,
+                        ds.cantidad_solicitada AS cantidad
+                    FROM detalle_solicitud ds
+                    JOIN material m ON m.id_material = ds.id_material
+                    WHERE ds.id_solicitud = :id_solicitud
+                """),
+                {"id_solicitud": solicitud["id_solicitud"]}
+            )
+            solicitud["materiales"] = [dict(fila._mapping) for fila in resultado_detalle]
+
+        return solicitudes
+
+def obtener_solicitud_por_id(id_solicitud: int):
+    """Obtiene la cabecera de una solicitud por su ID."""
+    with engine.connect() as connection:
+        resultado = connection.execute(
+            text("""
+                SELECT id_solicitud, estado, id_bodega_destino
+                FROM solicitud
+                WHERE id_solicitud = :id_solicitud
+            """),
+            {"id_solicitud": id_solicitud}
+        )
+        fila = resultado.fetchone()
+        return dict(fila._mapping) if fila else None
+
+def actualizar_estado_solicitud_y_pedido(id_solicitud: int, nuevo_estado: str):
+    """Cambia el estado de la solicitud y del pedido asociado."""
+    with engine.begin() as connection:
+        # 1. Actualizamos la solicitud
+        connection.execute(
+            text("UPDATE solicitud SET estado = :estado WHERE id_solicitud = :id"),
+            {"estado": nuevo_estado, "id": id_solicitud}
+        )
+        # 2. Actualizamos el pedido (si existe)
+        connection.execute(
+            text("UPDATE pedido SET estado = 'COMPLETADO' WHERE id_solicitud = :id"),
+            {"id": id_solicitud}
+        )

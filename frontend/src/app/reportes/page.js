@@ -179,6 +179,14 @@ function ReporteMovimientos() {
             <p className="mt-2 text-gray-600">
               Consulte los movimientos del contexto seleccionado.
             </p>
+            {/* H-15.3: acceso al reporte de inventario actual */}
+            <button
+              type="button"
+              onClick={() => router.push("/reportes/inventario")}
+              className="mt-4 rounded-xl border border-[#145c42] px-4 py-2 text-sm font-semibold text-[#145c42] hover:bg-[#dcefd7]"
+            >
+              Ver reporte de inventario actual
+            </button>
           </div>
 
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#c9dfc4] bg-[#eaf4e5] p-5">

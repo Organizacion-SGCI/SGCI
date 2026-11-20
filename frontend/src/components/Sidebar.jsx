@@ -12,13 +12,13 @@ export default function Sidebar({
 }) {
   const router = useRouter();
   const navegar = (ruta) => {
-  if (onNavigate) {
-    onNavigate(ruta);
-    return;
-  }
+    if (onNavigate) {
+      onNavigate(ruta);
+      return;
+    }
 
-  router.push(ruta);
-};
+    router.push(ruta);
+  };
   const [modalCerrarAbierto, setModalCerrarAbierto] = useState(false);
 
   const opcionClase = (nombre) =>
@@ -118,31 +118,34 @@ export default function Sidebar({
         </Guard>
 
         <Guard permiso="generar_reporte">
-  <div
-    onClick={() => navegar("/reportes")}
-    className={opcionClase("reportes")}
-  >
-    <span>◉</span>
-    Reportes
-  </div>
-</Guard>
+          <div
+            onClick={() => navegar("/reportes")}
+            className={opcionClase("reportes")}
+          >
+            <span>◉</span>
+            Reportes
+          </div>
+        </Guard>
 
         <Guard permiso="transferir_material">
-          <div className={opcionClase("transferencias")}>
+          <div
+            onClick={() => navegar("/transferencias")}
+            className={opcionClase("transferencias")}
+          >
             <span>⇄</span>
             Transferencias
           </div>
         </Guard>
 
         <Guard permiso="solicitar_material">
-  <div
-    onClick={() => navegar("/solicitudes")}
-    className={opcionClase("solicitudes")}
-  >
-    <span>▥</span>
-    Mis solicitudes
-  </div>
-</Guard>
+          <div
+            onClick={() => navegar("/solicitudes")}
+            className={opcionClase("solicitudes")}
+          >
+            <span>▥</span>
+            Mis solicitudes
+          </div>
+        </Guard>
 
         {/* gestion de solicitudes*/}
         <Guard permiso="aprobar_solicitud">
@@ -154,7 +157,7 @@ export default function Sidebar({
             Revisar solicitudes
           </div>
         </Guard>
-        
+
         <div className="mx-6 my-5 border-t border-white/15" />
 
         <Guard permiso="gestionar_usuario">
@@ -166,7 +169,7 @@ export default function Sidebar({
 
       </nav>
 
-            {/* CERRAR SESIÓN */}
+      {/* CERRAR SESIÓN */}
       <div className="shrink-0 p-5">
         <button
           type="button"
