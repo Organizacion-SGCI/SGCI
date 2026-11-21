@@ -11,6 +11,7 @@ import ModalDecisionSolicitud from "@/components/ModalDecisionSolicitud";
 import { obtenerSolicitudes } from "@/services/solicitudService";
 import { consultarExistenciasTransferencia, confirmarTransferencia } from "@/services/transferenciaService";
 
+
 export default function PaginaConfirmarTransferencia() {
   return (
     <Guard permiso="transferir_material" fallback={<main className="p-10">No tiene permiso.</main>}>
@@ -29,11 +30,6 @@ function ContenidoConfirmacion() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
-
-  // Estados para el Modal
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const [tipoAccion, setTipoAccion] = useState("aprobar");
-  const [mensajeExito, setMensajeExito] = useState("");
 
   useEffect(() => {
     async function cargar() {
@@ -73,25 +69,41 @@ function ContenidoConfirmacion() {
 
     cargar();
   }, [id, router]);
+  const manejarConfirmacion = async () => {
+    try {
+      setEnviando(true);
+      const token = sessionStorage.getItem("token");
 
+      await confirmarTransferencia(datos.solicitud.id_solicitud, token);
 
-  // FUNCIÓN PARA CUANDO EL MODAL CONFIRMA LA ACCIÓN
-  const manejarAccionConfirmada = (resultado) => {
-    setModalAbierto(false);
-    if (tipoAccion === "aprobar") {
-      setMensajeExito("¡Transferencia realizada con éxito! Inventario actualizado.");
-    } else {
-      setMensajeExito("Solicitud rechazada correctamente.");
-    }
-
-    // Redirigir a la lista después de 2.5 segundos
-    setTimeout(() => {
       router.push("/transferencias");
-    }, 2500);
+    } catch (err) {
+      alert(err.message); // Muestra un error si falta stock
+    } finally {
+      setEnviando(false);
+    }
   };
 
-  if (cargando) return <main className="min-h-screen flex items-center justify-center bg-[#f7f8f3]"><p className="text-[#145c42]">Cargando...</p></main>;
-  if (error) return <main className="min-h-screen flex items-center justify-center bg-[#f7f8f3]"><p className="text-red-600 bg-red-50 p-4 rounded-xl">{error}</p></main>;
+  if (cargando) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-[#f7f8f3]">
+        <p className="text-[#145c42]">Cargando...</p>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-[#f7f8f3]">
+        <p className="text-red-600 bg-red-50 p-4 rounded-xl">{error}</p>
+      </main>
+    );
+  }
+
+  // Verifica si TODOS los materiales tienen stock suficiente
+  const haySuficienteStock = datos.materiales.every(
+    (mat) => mat.stock_origen >= mat.cantidad
+  );
 
   return (
     <main className="min-h-screen bg-[#f7f8f3]">
@@ -100,14 +112,6 @@ function ContenidoConfirmacion() {
 
       <section className="min-h-screen pb-12 pl-[270px] pr-10 pt-[120px]">
         <div className="mx-auto max-w-4xl">
-
-          {/* MENSAJE DE ÉXITO FLOTANTE */}
-          {mensajeExito && (
-            <div className="fixed top-24 right-8 z-50 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg flex items-center gap-3">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <p className="font-semibold">{mensajeExito}</p>
-            </div>
-          )}
 
           <div className="mb-6">
             <p className="text-sm text-[#65907e] font-medium mb-1">RF-09: Transferir material entre bodegas</p>
@@ -170,19 +174,23 @@ function ContenidoConfirmacion() {
             </p>
           )}
 
-          {/* Botones de Acción */}
+          {/* Botones */}
           <div className="flex justify-center gap-4">
             <button
-              onClick={() => { setTipoAccion("rechazar"); setModalAbierto(true); }}
+              onClick={() => router.push("/transferencias")}
               className="px-8 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition"
             >
-              Rechazar
+              Cancelar
             </button>
             <button
-              onClick={() => { setTipoAccion("aprobar"); setModalAbierto(true); }}
-              className="px-8 py-3 rounded-lg bg-[#145c42] hover:bg-[#0f4934] text-white font-semibold text-sm transition"
+              onClick={manejarConfirmacion}
+              disabled={enviando || !haySuficienteStock}
+              className={`px-8 py-3 rounded-lg font-semibold text-sm transition ${enviando || !haySuficienteStock
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-[#145c42] hover:bg-[#0f4934] text-white'
+                }`}
             >
-              Confirmar
+              {enviando ? "Transfiriendo..." : "Confirmar"}
             </button>
           </div>
 

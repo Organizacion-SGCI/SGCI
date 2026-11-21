@@ -1,5 +1,5 @@
 import { obtenerInventario } from "@/services/inventarioService";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const API_URL = "http://127.0.0.1:8000";
 
 // H-10.2: consulta las existencias para revisar una transferencia.
 // Estos IDs representan el movimiento físico de los materiales:

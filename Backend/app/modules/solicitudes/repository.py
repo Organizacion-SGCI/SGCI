@@ -268,3 +268,17 @@ def actualizar_estado_solicitud_y_pedido(id_solicitud: int, nuevo_estado: str):
             text("UPDATE pedido SET estado = 'COMPLETADO' WHERE id_solicitud = :id"),
             {"id": id_solicitud}
         )
+
+def verificar_usuario_en_bodega(id_usuario: int, id_bodega: int):
+    """Valida si un usuario está asignado a una bodega específica (H-12.3)."""
+    with engine.connect() as connection:
+        resultado = connection.execute(
+            text("""
+                SELECT 1 
+                FROM usuario_bodega 
+                WHERE id_usuario = :id_usuario 
+                  AND id_bodega = :id_bodega
+            """),
+            {"id_usuario": id_usuario, "id_bodega": id_bodega}
+        )
+        return resultado.fetchone() is not None

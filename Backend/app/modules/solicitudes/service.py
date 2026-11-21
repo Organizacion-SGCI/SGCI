@@ -14,7 +14,8 @@ from app.modules.solicitudes.repository import (
     obtener_solicitud_por_id, 
     actualizar_estado_solicitud,
     obtener_solicitudes_aprobadas,
-    actualizar_estado_solicitud_y_pedido
+    actualizar_estado_solicitud_y_pedido,
+    verificar_usuario_en_bodega 
 )
 from app.modules.notificaciones.service import registrar_notificacion
 from app.modules.inventario.service import actualizar_inventario
@@ -277,10 +278,10 @@ def listar_solicitudes_aprobadas():
     """Devuelve la lista de solicitudes listas para transferir."""
     return obtener_solicitudes_aprobadas()
 
-def confirmar_recepcion_pedido(id_solicitud: int):
+def confirmar_recepcion_pedido(id_solicitud: int, id_usuario: int):
     """Suma el stock en la bodega destino y cierra la solicitud."""
     
-    # Validar que la solicitud exista y esté EN_TRANSITO
+    # 1. Validar que la solicitud exista y esté EN_TRANSITO
     solicitud = obtener_solicitud_por_id(id_solicitud)
     if not solicitud:
         raise ValueError("La solicitud no existe.")
@@ -289,7 +290,12 @@ def confirmar_recepcion_pedido(id_solicitud: int):
 
     id_bodega_destino = solicitud["id_bodega_destino"]
 
-    #Traer los materiales solicitados
+    # 2. VALIDACIÓN DE SEGURIDAD (H-12.3)
+    # Verificamos que el usuario logueado sea el encargado de la bodega destino
+    if not verificar_usuario_en_bodega(id_usuario, id_bodega_destino):
+        raise ValueError("Acceso denegado: Usted no es el encargado de la bodega destino de este pedido.")
+
+    # 3. Traer los materiales solicitados
     with engine.connect() as connection:
         resultado = connection.execute(
             text("SELECT id_material, cantidad_solicitada FROM detalle_solicitud WHERE id_solicitud = :id"),
@@ -297,16 +303,16 @@ def confirmar_recepcion_pedido(id_solicitud: int):
         )
         materiales = [dict(fila._mapping) for fila in resultado]
 
-    #Sumar el stock en la bodega destino
+    # 4. Sumar el stock en la bodega destino
     for m in materiales:
         actualizar_inventario(
             id_bodega=id_bodega_destino,
             id_material=m["id_material"],
             cantidad=m["cantidad_solicitada"],
-            tipo_movimiento="ENTRADA" # Simula la entrada a la bodega destino
+            tipo_movimiento="ENTRADA" 
         )
 
-    # Cambiar estados
+    # 5. Cambiar estados
     actualizar_estado_solicitud_y_pedido(id_solicitud, "COMPLETADA")
 
     return {"mensaje": "Pedido recibido y stock actualizado correctamente."}
