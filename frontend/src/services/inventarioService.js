@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export async function obtenerInventario(idBodega, token) {
   const respuesta = await fetch(`${API_URL}/inventario/${idBodega}`, {

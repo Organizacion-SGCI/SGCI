@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import TablaMovimientos from "@/components/TablaMovimientos";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Guard from "@/components/Guard";
@@ -179,6 +179,14 @@ function ReporteMovimientos() {
             <p className="mt-2 text-gray-600">
               Consulte los movimientos del contexto seleccionado.
             </p>
+            {/* H-15.3: acceso al reporte de inventario actual */}
+            <button
+              type="button"
+              onClick={() => router.push("/reportes/inventario")}
+              className="mt-4 rounded-xl border border-[#145c42] px-4 py-2 text-sm font-semibold text-[#145c42] hover:bg-[#dcefd7]"
+            >
+              Ver reporte de inventario actual
+            </button>
           </div>
 
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#c9dfc4] bg-[#eaf4e5] p-5">
@@ -297,7 +305,6 @@ function ReporteMovimientos() {
               </div>
             </fieldset>
           </form>
-
           {error && (
             <div
               role="alert"
@@ -329,16 +336,10 @@ function ReporteMovimientos() {
               </p>
             )}
 
-            {resultado && !resultado.pendienteIntegracion && (
-              resultado.movimientos.length === 0 ? (
-                <p>No hay movimientos para los filtros seleccionados.</p>
-              ) : (
-                <p>
-                  Se recibieron {resultado.movimientos.length} movimientos.
-                  La tabla de resultados estará disponible próximamente.
-                </p>
-              )
-            )}
+         {/* H-15.3: muestra únicamente resultados de una consulta disponible. */}
+{!consultando && !error && resultado && !resultado.pendienteIntegracion && (
+  <TablaMovimientos movimientos={resultado.movimientos} />
+)}
 
             {/*
              * H-15.3 — Punto de integración de la tabla:

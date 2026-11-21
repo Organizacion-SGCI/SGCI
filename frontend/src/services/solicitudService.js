@@ -1,7 +1,7 @@
 // Conecta Backend
 // H-05.3: consulta, aprobación y rechazo de solicitudes de materiales.
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 // lista las solicitudes según el rol del usuario
 export async function obtenerSolicitudes(estado, token) {
@@ -126,6 +126,24 @@ export async function obtenerBodegas(token) {
 
   if (!Array.isArray(datos)) {
     throw new Error("El servidor devolvió un listado de bodegas inválido.");
+  }
+
+  return datos;
+}
+
+export async function confirmarRecepcion(id_solicitud, token) {
+  const respuesta = await fetch(`${API_URL}/solicitudes/${id_solicitud}/recibir`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(datos.detail || "Error al confirmar la recepción");
   }
 
   return datos;
