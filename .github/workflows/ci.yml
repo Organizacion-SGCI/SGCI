@@ -83,3 +83,60 @@ jobs:
       - name: Ejecutar las pruebas
         working-directory: Backend
         run: python -m pytest tests -v
+
+  docker:
+    name: Contenedores (Docker Compose)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Construir las imágenes
+        run: docker compose build
+
+      - name: Levantar el entorno completo
+        run: docker compose up -d
+
+      - name: Esperar a que la API y el frontend respondan
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/ > /dev/null && curl -fsS http://localhost:3000/ > /dev/null; then
+              echo "Servicios disponibles"
+              exit 0
+            fi
+            echo "Esperando servicios... intento $i"
+            sleep 5
+          done
+          echo "Los servicios no respondieron a tiempo"
+          docker compose logs
+          exit 1
+
+      - name: Prueba de humo - iniciar sesión con un usuario de prueba
+        run: |
+          curl -fsS -X POST http://localhost:8000/login/ \
+            -H "Content-Type: application/json" \
+            -d '{"correo":"carlos@sgci.com","password":"123456"}'
+
+      - name: Mostrar registros si algo falló
+        if: failure()
+        run: docker compose logs
+
+      - name: Detener y limpiar el entorno
+        if: always()
+        run: docker compose down -v
+
+  deploy:
+    name: Despliegue (CD)
+    needs: [frontend, backend, docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Desplegar el backend en Render
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "Falta el secreto RENDER_DEPLOY_HOOK_URL"
+            exit 1
+          fi
+          curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"

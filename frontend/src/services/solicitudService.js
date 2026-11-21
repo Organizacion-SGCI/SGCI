@@ -1,7 +1,7 @@
 // Conecta Backend
 // H-05.3: consulta, aprobación y rechazo de solicitudes de materiales.
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 // lista las solicitudes según el rol del usuario
 export async function obtenerSolicitudes(estado, token) {

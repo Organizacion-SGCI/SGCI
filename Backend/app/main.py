@@ -1,3 +1,4 @@
+import os
 from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi import FastAPI
@@ -23,12 +24,19 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Origenes del frontend permitidos,s e configuran con la variable CORS_ORIGINS; por defecto solo el entorno local.
+origenes_permitidos = [
+    origen.strip()
+    for origen in os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:3000,http://127.0.0.1:3000"
+    ).split(",")
+    if origen.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000"
-    ],
+    allow_origins=origenes_permitidos,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
