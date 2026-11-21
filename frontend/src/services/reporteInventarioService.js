@@ -1,7 +1,7 @@
 // Capa de comunicación con el backend para el reporte de inventario actual
 // H-15.3: consume GET /reportes/inventario (H-15.1)
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const API_URL = "http://127.0.0.1:8000";
 
 // El reporte se pide para la bodega o el proyecto del contexto seleccionado
 export async function obtenerReporteInventario({ contexto, filtros, token }) {
