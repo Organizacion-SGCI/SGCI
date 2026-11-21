@@ -93,3 +93,64 @@ def consultar_inventario_actual(ids_bodega, buscar=None):
             parametros
         )
         return [dict(fila._mapping) for fila in resultado]
+
+
+def consultar_historial(
+    id_bodega,
+    id_proyecto,
+    fecha_desde,
+    fecha_hasta,
+    tipo,
+    material,
+):
+    sql = """
+        SELECT
+            mov.id_movimiento,
+            mov.fecha_movimiento AT TIME ZONE 'America/Costa_Rica' AS fecha_movimiento,
+            mov.tipo,
+            mov.cantidad,
+            mat.codigo AS codigo_material,
+            mat.nombre AS material,
+            mat.unidad_medida,
+            COALESCE(origen.nombre, prov.nombre) AS origen,
+            COALESCE(destino.nombre, proy.nombre) AS destino,
+            u.nombre AS responsable,
+            mov.observacion
+        FROM movimiento mov
+        JOIN material mat ON mat.id_material = mov.id_material
+        JOIN usuario u ON u.id_usuario = mov.id_usuario
+        LEFT JOIN bodega origen ON origen.id_bodega = mov.id_bodega_origen
+        LEFT JOIN bodega destino ON destino.id_bodega = mov.id_bodega_destino
+        LEFT JOIN proveedor prov ON prov.id_proveedor = mov.id_proveedor
+        LEFT JOIN proyecto proy ON proy.id_proyecto = mov.id_proyecto
+    """
+
+    if id_bodega is not None:
+        sql += " WHERE :id_bodega IN (mov.id_bodega_origen, mov.id_bodega_destino)"
+        parametros = {"id_bodega": id_bodega}
+    else:
+        sql += " WHERE mov.id_proyecto = :id_proyecto"
+        parametros = {"id_proyecto": id_proyecto}
+
+    if fecha_desde:
+        sql += " AND mov.fecha_movimiento >= :fecha_desde"
+        parametros["fecha_desde"] = fecha_desde
+
+    if fecha_hasta:
+        # Incluye todos los movimientos del último día seleccionado.
+        sql += " AND mov.fecha_movimiento < CAST(:fecha_hasta AS date) + INTERVAL '1 day'"
+        parametros["fecha_hasta"] = fecha_hasta
+
+    if tipo:
+        sql += " AND mov.tipo = :tipo"
+        parametros["tipo"] = tipo
+
+    if material:
+        sql += " AND (mat.nombre ILIKE :material OR mat.codigo ILIKE :material)"
+        parametros["material"] = f"%{material}%"
+
+    sql += " ORDER BY mov.fecha_movimiento DESC, mov.id_movimiento DESC"
+
+    with engine.connect() as connection:
+        resultado = connection.execute(text(sql), parametros)
+        return [dict(fila) for fila in resultado.mappings()]

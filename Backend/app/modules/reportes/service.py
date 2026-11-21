@@ -9,7 +9,8 @@ from app.modules.reportes.repository import (
     obtener_bodega_con_acceso,
     obtener_proyecto_con_acceso,
     obtener_ids_bodegas_de_proyecto,
-    consultar_inventario_actual
+    consultar_inventario_actual,
+    consultar_historial,
 )
 
 ESTADOS_REPORTE = ["OK", "STOCK_BAJO"]
@@ -113,3 +114,37 @@ def generar_reporte_inventario(
         },
         "materiales": materiales
     }
+
+def generar_reporte_movimientos(
+    id_usuario,
+    id_bodega=None,
+    id_proyecto=None,
+    fecha_desde=None,
+    fecha_hasta=None,
+    tipo=None,
+    material=None,
+):
+    if (id_bodega is None) == (id_proyecto is None):
+        raise ValueError("Seleccione exactamente una bodega o un proyecto.")
+
+    if fecha_desde and fecha_hasta and fecha_desde > fecha_hasta:
+        raise ValueError("La fecha inicial no puede superar la fecha final.")
+
+    if id_bodega is not None:
+        contexto = obtener_bodega_con_acceso(id_usuario, id_bodega)
+    else:
+        contexto = obtener_proyecto_con_acceso(id_usuario, id_proyecto)
+
+    if contexto is None:
+        raise SinAccesoContexto("No tiene acceso a la bodega o proyecto indicado.")
+
+    movimientos = consultar_historial(
+        id_bodega=id_bodega,
+        id_proyecto=id_proyecto,
+        fecha_desde=fecha_desde,
+        fecha_hasta=fecha_hasta,
+        tipo=tipo,
+        material=(material or "").strip(),
+    )
+
+    return {"movimientos": movimientos}
