@@ -130,7 +130,7 @@ def agregar_materiales_endpoint(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/aprobadas")
-def obtener_aprobadas(user=Depends(getCurrentUser)):
+def obtener_aprobadas(usuario_actual: dict = Depends(require_rol(["Jefe de Bodega"]))):
     """Lista las solicitudes aprobadas listas para transferencia."""
     try:
         return listar_solicitudes_aprobadas()
@@ -138,9 +138,15 @@ def obtener_aprobadas(user=Depends(getCurrentUser)):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.put("/{id_solicitud}/recibir")
-def recibir_pedido(id_solicitud: int, user=Depends(getCurrentUser)):
+def recibir_pedido(
+    id_solicitud: int, 
+    usuario_actual: dict = Depends(require_rol(["Encargado"])) # <-- Cambiamos a require_rol
+):
     """Endpoint para que el encargado confirme que recibió la transferencia."""
     try:
-        return confirmar_recepcion_pedido(id_solicitud)
+        return confirmar_recepcion_pedido(
+            id_solicitud=id_solicitud,
+            id_usuario=usuario_actual["id_usuario"] # <-- Le pasamos el ID del usuario
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
