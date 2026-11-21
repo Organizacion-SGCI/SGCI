@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Guard from "@/components/Guard";
+import ModalDecisionSolicitud from "@/components/ModalDecisionSolicitud";
 
 import { obtenerSolicitudes } from "@/services/solicitudService";
 import { consultarExistenciasTransferencia, confirmarTransferencia } from "@/services/transferenciaService";
@@ -117,7 +118,7 @@ function ContenidoConfirmacion() {
             <h1 className="text-2xl font-semibold text-[#173d30]">Detalle de transferencia</h1>
           </div>
 
-          {/* Tarjeta gris de Info General (Como en el Figma) */}
+          {/* Tarjeta gris de Info General */}
           <div className="bg-[#eaf3e6] border border-[#c9dfc4] rounded-xl p-6 mb-8 flex justify-between items-center text-sm text-[#173d30]">
             <div className="space-y-2">
               <p><span className="font-medium text-gray-500">Solicitud:</span> <strong className="font-semibold">SOL-{datos.solicitud.id_solicitud.toString().padStart(3, '0')}</strong></p>
@@ -192,6 +193,16 @@ function ContenidoConfirmacion() {
               {enviando ? "Transfiriendo..." : "Confirmar"}
             </button>
           </div>
+
+          {/* El Modal Reutilizado */}
+          {modalAbierto && (
+            <ModalDecisionSolicitud
+              solicitud={datos.solicitud}
+              accion={tipoAccion}
+              onCerrar={() => setModalAbierto(false)}
+              onConfirmada={manejarAccionConfirmada}
+            />
+          )}
 
         </div>
       </section>

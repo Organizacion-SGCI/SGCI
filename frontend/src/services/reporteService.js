@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 /*
  * H-15.2 — Integración pendiente con el backend.
@@ -13,7 +13,7 @@ const API_URL = "http://127.0.0.1:8000";
  *
  * No activar la ruta hasta que exista el endpoint.
  */
-const ENDPOINT_MOVIMIENTOS = null;
+const ENDPOINT_MOVIMIENTOS = "/reportes/movimientos";
 
 /*
  * CONTRATO PROPUESTO, pendiente de confirmar con backend:
@@ -93,10 +93,6 @@ export async function consultarMovimientos({
     throw new Error("La fecha inicial no puede superar la fecha final.");
   }
 
-  // Estado explícito: todavía no se ha consultado el historial real.
-  if (!ENDPOINT_MOVIMIENTOS) {
-    return { pendienteIntegracion: true, movimientos: [] };
-  }
 
   const parametros = new URLSearchParams({
     [esBodega ? "id_bodega" : "id_proyecto"]: String(idContexto),

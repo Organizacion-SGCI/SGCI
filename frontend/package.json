@@ -17,7 +17,9 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4",
+    "@types/node": "^26.6.6",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "tailwindcss": "^4"

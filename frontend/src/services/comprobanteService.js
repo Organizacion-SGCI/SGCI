@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 // H-08.2: consulta el comprobante de un ingreso (endpoint H-08.1)
 export async function obtenerComprobanteIngreso(idMovimiento, token) {

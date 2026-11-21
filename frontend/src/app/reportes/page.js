@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import TablaMovimientos from "@/components/TablaMovimientos";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Guard from "@/components/Guard";
@@ -305,7 +305,6 @@ function ReporteMovimientos() {
               </div>
             </fieldset>
           </form>
-
           {error && (
             <div
               role="alert"
@@ -337,16 +336,10 @@ function ReporteMovimientos() {
               </p>
             )}
 
-            {resultado && !resultado.pendienteIntegracion && (
-              resultado.movimientos.length === 0 ? (
-                <p>No hay movimientos para los filtros seleccionados.</p>
-              ) : (
-                <p>
-                  Se recibieron {resultado.movimientos.length} movimientos.
-                  La tabla de resultados estará disponible próximamente.
-                </p>
-              )
-            )}
+         {/* H-15.3: muestra únicamente resultados de una consulta disponible. */}
+{!consultando && !error && resultado && !resultado.pendienteIntegracion && (
+  <TablaMovimientos movimientos={resultado.movimientos} />
+)}
 
             {/*
              * H-15.3 — Punto de integración de la tabla:
