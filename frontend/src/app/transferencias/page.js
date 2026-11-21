@@ -37,6 +37,8 @@ export default function ListaTransferencias() {
         setUsuario(usuarioActual);
         const data = await obtenerSolicitudes("APROBADA", token);
         setSolicitudes(data);
+
+
       } catch (err) {
         setError(err.message);
       } finally {
@@ -65,7 +67,7 @@ export default function ListaTransferencias() {
 
       <section className="min-h-screen pt-[120px] pl-[270px] pr-10 pb-12">
         <div className="mx-auto max-w-7xl">
-          
+
           <div className="mb-6">
             <p className="text-sm text-[#65907e] font-medium mb-1">En los últimos 30 días</p>
           </div>
@@ -158,7 +160,7 @@ export default function ListaTransferencias() {
                 ))}
               </tbody>
             </table>
-            
+
             {/* Paginación visual (igual al Figma) */}
             <div className="flex justify-center items-center gap-2 p-4 border-t border-gray-100">
               <button className="text-gray-400 hover:text-gray-600">&lt;</button>
