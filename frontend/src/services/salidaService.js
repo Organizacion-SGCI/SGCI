@@ -1,7 +1,7 @@
 
 // Capa de comunicación con el backend para el módulo de salida.
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export async function registrarSalida(
   idMaterial,
