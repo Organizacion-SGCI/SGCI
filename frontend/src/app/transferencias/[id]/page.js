@@ -6,10 +6,10 @@ import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Guard from "@/components/Guard";
+import ModalDecisionSolicitud from "@/components/ModalDecisionSolicitud";
 
 import { obtenerSolicitudes } from "@/services/solicitudService";
 import { consultarExistenciasTransferencia } from "@/services/transferenciaService";
-
 
 export default function PaginaConfirmarTransferencia() {
   return (
@@ -28,6 +28,11 @@ function ContenidoConfirmacion() {
   const [datos, setDatos] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+
+  // Estados para el Modal
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [tipoAccion, setTipoAccion] = useState("aprobar");
+  const [mensajeExito, setMensajeExito] = useState("");
 
   useEffect(() => {
     async function cargar() {
@@ -67,6 +72,22 @@ function ContenidoConfirmacion() {
     cargar();
   }, [id, router]);
 
+
+  // FUNCIÓN PARA CUANDO EL MODAL CONFIRMA LA ACCIÓN
+  const manejarAccionConfirmada = (resultado) => {
+    setModalAbierto(false);
+    if (tipoAccion === "aprobar") {
+      setMensajeExito("¡Transferencia realizada con éxito! Inventario actualizado.");
+    } else {
+      setMensajeExito("Solicitud rechazada correctamente.");
+    }
+
+    // Redirigir a la lista después de 2.5 segundos
+    setTimeout(() => {
+      router.push("/transferencias");
+    }, 2500);
+  };
+
   if (cargando) return <main className="min-h-screen flex items-center justify-center bg-[#f7f8f3]"><p className="text-[#145c42]">Cargando...</p></main>;
   if (error) return <main className="min-h-screen flex items-center justify-center bg-[#f7f8f3]"><p className="text-red-600 bg-red-50 p-4 rounded-xl">{error}</p></main>;
 
@@ -77,13 +98,21 @@ function ContenidoConfirmacion() {
 
       <section className="min-h-screen pb-12 pl-[270px] pr-10 pt-[120px]">
         <div className="mx-auto max-w-4xl">
-          
+
+          {/* MENSAJE DE ÉXITO FLOTANTE */}
+          {mensajeExito && (
+            <div className="fixed top-24 right-8 z-50 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg flex items-center gap-3">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <p className="font-semibold">{mensajeExito}</p>
+            </div>
+          )}
+
           <div className="mb-6">
             <p className="text-sm text-[#65907e] font-medium mb-1">RF-09: Transferir material entre bodegas</p>
             <h1 className="text-2xl font-semibold text-[#173d30]">Detalle de transferencia</h1>
           </div>
 
-          {/* Tarjeta gris de Info General (Como en el Figma) */}
+          {/* Tarjeta gris de Info General */}
           <div className="bg-[#eaf3e6] border border-[#c9dfc4] rounded-xl p-6 mb-8 flex justify-between items-center text-sm text-[#173d30]">
             <div className="space-y-2">
               <p><span className="font-medium text-gray-500">Solicitud:</span> <strong className="font-semibold">SOL-{datos.solicitud.id_solicitud.toString().padStart(3, '0')}</strong></p>
@@ -132,15 +161,31 @@ function ContenidoConfirmacion() {
             Inventario suficiente para realizar la transferencia.
           </p>
 
-          {/* Botones */}
+          {/* Botones de Acción */}
           <div className="flex justify-center gap-4">
-            <button className="px-8 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition">
+            <button
+              onClick={() => { setTipoAccion("rechazar"); setModalAbierto(true); }}
+              className="px-8 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition"
+            >
               Rechazar
             </button>
-            <button className="px-8 py-3 rounded-lg bg-[#145c42] hover:bg-[#0f4934] text-white font-semibold text-sm transition">
+            <button
+              onClick={() => { setTipoAccion("aprobar"); setModalAbierto(true); }}
+              className="px-8 py-3 rounded-lg bg-[#145c42] hover:bg-[#0f4934] text-white font-semibold text-sm transition"
+            >
               Confirmar
             </button>
           </div>
+
+          {/* El Modal Reutilizado */}
+          {modalAbierto && (
+            <ModalDecisionSolicitud
+              solicitud={datos.solicitud}
+              accion={tipoAccion}
+              onCerrar={() => setModalAbierto(false)}
+              onConfirmada={manejarAccionConfirmada}
+            />
+          )}
 
         </div>
       </section>
